@@ -1,10 +1,10 @@
-# StockPulse on GitHub
+# StockPulse
 
 [![CI/CD](https://github.com/osman-builds/Hugging-Face--Projects/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/osman-builds/Hugging-Face--Projects/actions/workflows/ci-cd.yml)
 
-StockPulse is the main application in this repository. It is a FastAPI inventory and barcode-scanning system with role-based portals, PostgreSQL, Redis caching, Docker, and GitHub Actions for automated test and image publishing.
+StockPulse is a FastAPI inventory and barcode-scanning app with role-based portals, PostgreSQL, Redis caching, Docker, and GitHub Actions for automated testing and image publishing. This is the main README for the whole repository.
 
-## Why This Repo Exists
+## Customer Problem
 
 Retail and warehouse teams need a system that can:
 
@@ -14,36 +14,38 @@ Retail and warehouse teams need a system that can:
 - keep running even if one app instance fails,
 - and publish a container image automatically after passing tests.
 
-This repository was built to solve those problems in a way that is easy to run locally and easy to deploy from GitHub.
+This app was built to solve those problems in a way that is easy to run locally and easy to deploy from GitHub.
+
+## Why These Pieces Exist
+
+- The camera barcode scanner exists because typing item codes by hand is slow and error-prone.
+- Redis caching exists because repeated inventory reads should be fast and should not keep hitting the database.
+- Nginx exists because traffic should be spread across multiple app replicas instead of depending on one container.
+- GitHub Actions exists because tests should run automatically before a new image is published.
 
 ## How The System Works
 
 ```mermaid
 flowchart TD
-    A[Open the repository landing page] --> B[Enter StockPulse]
-    B --> C{Choose a role}
-    C --> D[/user/]
-    C --> E[/admin/]
-    C --> F[/supplier/]
-    D --> G[Register and verify OTP]
-    G --> H[Log in]
-    H --> I[Start camera barcode capture]
-    I --> J[Preview item name, SKU, and stock]
-    J --> K[Capture scan and store history]
-    E --> L[Provision users and review inventory]
-    F --> M[Track supplier movement and scans]
-    K --> N[Redis cache keeps repeated reads fast]
-    N --> O[Nginx load balances traffic across app replicas]
-    O --> P[GitHub Actions tests and publishes the image]
+    A[Open StockPulse] --> B{Choose a role}
+    B --> C[/user/]
+    B --> D[/admin/]
+    B --> E[/supplier/]
+    C --> F[Register and verify OTP]
+    F --> G[Log in]
+    G --> H[Start camera barcode capture]
+    H --> I[Preview item name, SKU, and stock]
+    I --> J[Capture scan and store history]
+    D --> K[Provision users and review inventory]
+    E --> L[Track supplier movement and scans]
+    J --> M[Redis cache keeps repeated reads fast]
+    M --> N[Nginx load balances traffic across app replicas]
+    N --> O[GitHub Actions tests and publishes the image]
 ```
 
-## What Is In The Repository
+## What Is In The Repo
 
-### Main App
-
-The production-facing application lives in [Project 1](Project%201/).
-
-Important parts:
+The main app lives in [Project 1](Project%201/). Important files:
 
 - [Project 1/app.py](Project%201/app.py) for the FastAPI app and UI pages.
 - [Project 1/docker-compose.yml](Project%201/docker-compose.yml) for the multi-service deployment stack.
@@ -51,20 +53,14 @@ Important parts:
 - [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) for the active GitHub Actions pipeline.
 - [Project 1/README.md](Project%201/README.md) for the app-level setup and feature guide.
 
-### Tutorials
-
-The [tutorials](tutorials/) folder contains the lightweight demo scripts that were included with the repo.
-
 ## Active GitHub Actions Workflow
 
-The workflow at [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) is active on the `main` branch and does two things:
+The workflow at [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) is active on `main` and does two things:
 
 - runs the test suite on pull requests and pushes,
 - builds and pushes the Docker image to GitHub Container Registry on `main`.
 
 ## Quick Start
-
-If you want to run the main app locally:
 
 ```bash
 cd "Project 1"
@@ -80,4 +76,4 @@ Then open the app at [http://localhost:8000](http://localhost:8000).
 
 ## Next Step
 
-If you want the repo landing page to show even more, the next useful upgrade is to add deployment status badges and a short screenshot section for the UI.
+If you want, the next useful upgrade is to rename the repository itself on GitHub to StockPulse and add screenshots to the README.

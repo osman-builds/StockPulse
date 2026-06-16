@@ -1,6 +1,6 @@
 # StockPulse
 
-StockPulse is a FastAPI inventory and scan-tracking prototype built to solve a practical operations problem: teams need a fast way to identify products, capture barcode scans from a camera, and keep stock visibility high even when traffic increases or one backend instance fails.
+StockPulse is a FastAPI inventory and scan-tracking app built to solve a practical operations problem: teams need a fast way to identify products, capture barcode scans from a camera, and keep stock visibility high even when traffic increases or one backend instance fails.
 
 ## Customer Problem
 
