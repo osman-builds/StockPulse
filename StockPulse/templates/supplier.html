@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Supplier Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <style>
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: linear-gradient(180deg, #020617 0%, #111827 100%); color: #e5e7eb; }
+        .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 18px 56px; }
+        .hero { display: grid; gap: 12px; margin-bottom: 24px; }
+        .brand { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; width: fit-content; border-radius: 999px; background: rgba(15,23,42,.72); border: 1px solid rgba(148,163,184,.18); box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+        .brand img { width: 30px; height: 30px; }
+        .brand span { font-weight: 800; letter-spacing: .02em; }
+        .eyebrow { color: #38bdf8; text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 700; }
+        h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.05; }
+        .sub { color: #9ca3af; max-width: 760px; line-height: 1.6; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .card { background: rgba(17, 24, 39, .92); border: 1px solid rgba(148, 163, 184, .14); border-radius: 18px; padding: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.22); }
+        .card h2 { margin: 0 0 12px; font-size: 1.05rem; }
+        .status { padding: 10px 12px; border-radius: 12px; background: rgba(148, 163, 184, .08); color: #cbd5e1; min-height: 44px; white-space: pre-wrap; }
+        .item { background: rgba(255,255,255,.03); border: 1px solid rgba(148, 163, 184, .12); border-radius: 14px; padding: 12px; margin-top: 10px; }
+        .topbar { display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom: 16px; }
+        .linkbtn { background: transparent; color: #93c5fd; border: 1px solid rgba(147,197,253,.25); padding: 10px 12px; width: auto; border-radius: 12px; }
+        input, button { width: 100%; border-radius: 12px; border: 1px solid rgba(148, 163, 184, .2); background: #0f172a; color: #e5e7eb; padding: 12px 14px; font: inherit; }
+        button { cursor: pointer; background: linear-gradient(135deg, #38bdf8, #22c55e); color: #0f172a; font-weight: 800; border: none; }
+        label { display:grid; gap:6px; font-size:13px; color:#cbd5e1; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <section class="hero">
+            <div class="brand"><img src="/static/stockpulse-icon.svg" alt="StockPulse icon" /><span>StockPulse</span></div>
+            <div class="eyebrow">StockPulse AI</div>
+            <h1>Supplier Dashboard</h1>
+            <p class="sub">Suppliers only see their own stock movement and replenishment signals. Accounts are provisioned by an admin.</p>
+        </section>
+
+        <div class="topbar">
+            <div id="session" class="status">No active session.</div>
+            <button class="linkbtn" id="logout">Logout</button>
+        </div>
+
+        <div class="grid">
+            <section class="card">
+                <h2>Login</h2>
+                <form id="login-form">
+                    <label>Email or username<input id="login_identifier" required></label>
+                    <label>Password<input id="login_password" type="password" required></label>
+                    <button type="submit">Sign in</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Profile</h2>
+                <div id="profile" class="status">Load a token to view profile details.</div>
+            </section>
+
+            <section class="card">
+                <h2>Supplier movement</h2>
+                <div id="movement"></div>
+            </section>
+
+            <section class="card">
+                <h2>Scan product</h2>
+                <form id="scan-form">
+                    <label>Scan code or SKU<input id="scan_code" required></label>
+                    <label>Quantity<input id="scan_qty" type="number" min="1" value="1" required></label>
+                    <button type="submit">Capture scan</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Recent scans</h2>
+                <div id="scans"></div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const tokenKey = "stockpulse_token";
+        const sessionEl = document.getElementById("session");
+        const profileEl = document.getElementById("profile");
+        const movementEl = document.getElementById("movement");
+        const scansEl = document.getElementById("scans");
+
+        function token() { return localStorage.getItem(tokenKey) || ""; }
+        function authHeaders() { return token() ? { Authorization: `Bearer ${token()}` } : {}; }
+        function saveToken(nextToken) { localStorage.setItem(tokenKey, nextToken); refreshSession(); }
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+        async function fetchJson(url, options = {}) {
+            const response = await fetch(url, options);
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || "Request failed");
+            return payload;
+        }
+
+        function renderMovement(items) {
+            movementEl.innerHTML = items.length ? items.map(item => `
+                <div class="item">
+                    <strong>${item.sku}</strong> - ${item.name}<br>
+                    Remaining: ${item.total_remaining} | Movement 14d: ${item.sales_last_14_days} | Status: ${item.status}
+                </div>
+            `).join("") : '<div class="status">No supplier movement available.</div>';
+        }
+
+        function renderScans(items) {
+            scansEl.innerHTML = items.length ? items.map(item => `
+                <div class="item">
+                    <strong>${escapeHtml(item.product_sku)}</strong> - ${escapeHtml(item.product_name)}<br>
+                    Scan: ${escapeHtml(item.scan_code)} | Qty: ${escapeHtml(item.quantity)} | Remaining: ${escapeHtml(item.quantity_remaining_snapshot)}
+                </div>
+            `).join("") : '<div class="status">No scans captured yet.</div>';
+        }
+
+        async function refreshSession() {
+            const currentToken = token();
+            if (!currentToken) {
+                sessionEl.textContent = "No active session.";
+                profileEl.textContent = "Load a token to view profile details.";
+                movementEl.innerHTML = "";
+                return;
+            }
+
+            try {
+                const me = await fetchJson("/auth/me", { headers: authHeaders() });
+                sessionEl.textContent = `Signed in as ${me.username} (${me.role}${me.is_verified ? ", verified" : ", unverified"})`;
+                profileEl.textContent = JSON.stringify(me, null, 2);
+                if (me.role === "supplier") {
+                    const movement = await fetchJson("/supplier/movement", { headers: authHeaders() });
+                    renderMovement(movement.items || []);
+                    const scans = await fetchJson("/scans/me", { headers: authHeaders() });
+                    renderScans(scans.items || []);
+                } else {
+                    movementEl.innerHTML = '<div class="status">Supplier access required.</div>';
+                }
+            } catch (error) {
+                sessionEl.textContent = error.message;
+                profileEl.textContent = error.message;
+            }
+        }
+
+        document.getElementById("login-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            try {
+                const result = await fetchJson("/auth/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        identifier: document.getElementById("login_identifier").value,
+                        password: document.getElementById("login_password").value,
+                    }),
+                });
+                saveToken(result.access_token);
+                sessionEl.textContent = "Signed in.";
+            } catch (error) {
+                sessionEl.textContent = error.message;
+            }
+        });
+
+        document.getElementById("logout").addEventListener("click", () => {
+            localStorage.removeItem(tokenKey);
+            refreshSession();
+        });
+
+        document.getElementById("scan-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            try {
+                const result = await fetchJson("/scans", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", ...authHeaders() },
+                    body: JSON.stringify({
+                        scan_code: document.getElementById("scan_code").value,
+                        quantity: Number(document.getElementById("scan_qty").value || 1),
+                    }),
+                });
+                sessionEl.textContent = result.message || "Scan captured.";
+                refreshSession();
+            } catch (error) {
+                sessionEl.textContent = error.message;
+            }
+        });
+
+        refreshSession();
+    </script>
+</body>
+</html>

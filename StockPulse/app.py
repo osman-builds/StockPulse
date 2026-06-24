@@ -5,8 +5,9 @@ import os
 import secrets
 import smtplib
 from email.message import EmailMessage
+from pathlib import Path
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import BackgroundTasks, FastAPI, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer
@@ -22,7 +23,8 @@ from schemas import SupplierCreate, ProductCreate, BatchCreate, SaleCreate, User
 from rop import compute_velocity, compute_rop
 
 app = FastAPI(title="StockPulse")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+BASE_DIR = Path(__file__).resolve().parent
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 SECRET_KEY = os.getenv("STOCKPULSE_SECRET_KEY", "stockpulse-dev-secret")
 ALGORITHM = "HS256"
@@ -1367,10 +1369,105 @@ def render_supplier_dashboard() -> str:
         </body>
         </html>
         """
+
+
+def render_dashboard(items: list[dict]) -> str:
+    from presentation import render_dashboard as render_dashboard_impl
+
+    return render_dashboard_impl(items)
+
+
+def render_landing_page() -> str:
+    from presentation import render_landing_page as render_landing_page_impl
+
+    return render_landing_page_impl()
+
+
+def render_portal_page(page_role: str) -> str:
+    from presentation import render_portal_page as render_portal_page_impl
+
+    return render_portal_page_impl(page_role)
+
+
+def render_supplier_dashboard() -> str:
+    from presentation import render_supplier_dashboard as render_supplier_dashboard_impl
+
+    return render_supplier_dashboard_impl()
+
+
+def render_quality_dashboard(items: list[dict]) -> str:
+    from presentation import render_quality_dashboard as render_quality_dashboard_impl
+
+    return render_quality_dashboard_impl(items)
+
+
+def cache_get_json(key: str):
+    from repositories.inventory_repository import cache_get_json as cache_get_json_impl
+
+    return cache_get_json_impl(key)
+
+
+def cache_set_json(key: str, value, ttl_seconds: int = CACHE_TTL_SECONDS):
+    from repositories.inventory_repository import cache_set_json as cache_set_json_impl
+
+    return cache_set_json_impl(key, value, ttl_seconds=ttl_seconds)
+
+
+def cache_version() -> str:
+    from repositories.inventory_repository import cache_version as cache_version_impl
+
+    return cache_version_impl()
+
+
+def bump_cache_version():
+    from repositories.inventory_repository import bump_cache_version as bump_cache_version_impl
+
+    return bump_cache_version_impl()
+
+
+def batch_status(batch: Batch) -> str:
+    from repositories.inventory_repository import batch_status as batch_status_impl
+
+    return batch_status_impl(batch)
+
+
+def inventory_status(total_remaining: int, safety_stock: int) -> str:
+    from repositories.inventory_repository import inventory_status as inventory_status_impl
+
+    return inventory_status_impl(total_remaining, safety_stock)
+
+
+def inventory_row(product: Product, batches: list[Batch]) -> dict:
+    from repositories.inventory_repository import inventory_row as inventory_row_impl
+
+    return inventory_row_impl(product, batches)
+
+
+def get_inventory_items(db: Session) -> list[dict]:
+    from repositories.inventory_repository import get_inventory_items as get_inventory_items_impl
+
+    return get_inventory_items_impl(db)
+
+
+def send_verification_email(recipient_email: str, otp_code: str):
+    from services.email_service import send_verification_email as send_verification_email_impl
+
+    return send_verification_email_impl(
+        recipient_email,
+        otp_code,
+        smtp_host=SMTP_HOST,
+        smtp_port=SMTP_PORT,
+        smtp_username=SMTP_USERNAME,
+        smtp_password=SMTP_PASSWORD,
+        smtp_from=SMTP_FROM,
+        smtp_use_tls=SMTP_USE_TLS,
+        otp_expires_minutes=OTP_EXPIRE_MINUTES,
+    )
 @app.post("/auth/register", response_model=AuthMessage)
-def register_user(payload: UserCreate, db: Session = Depends(get_db)):
-    _, otp_code = create_pending_user(db, payload, send_email=True)
-    return AuthMessage(message=f"Verification code sent to {normalize_email_address(payload.email)}")
+def register_user(payload: UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    user, otp_code = create_pending_user(db, payload, send_email=False)
+    background_tasks.add_task(send_verification_email, user.email, otp_code)
+    return AuthMessage(message=f"Verification code sent to {user.email}")
 
 
 @app.post("/auth/token", response_model=Token)
@@ -1604,9 +1701,14 @@ def create_batch(b: BatchCreate, db: Session = Depends(get_db), current_user: Us
 
 @app.post("/sales")
 def record_sale(s: SaleCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # FEFO: pick from earliest expiry batches first
     qty_to_deduct = s.quantity
-    batches = db.query(Batch).filter(Batch.product_id == s.product_id, Batch.quantity_remaining > 0).order_by(Batch.expiry_date.asc().nulls_last()).all()
+    batches = (
+        db.query(Batch)
+        .filter(Batch.product_id == s.product_id, Batch.quantity_remaining > 0)
+        .order_by(Batch.expiry_date.asc().nulls_last())
+        .with_for_update()
+        .all()
+    )
     if not batches:
         raise HTTPException(status_code=400, detail="No stock available for this product")
 
@@ -1671,14 +1773,15 @@ def health_check():
     return {"status": "ok"}
 
 
-@app.get("/", response_class=HTMLResponse)
-def dashboard(db: Session = Depends(get_db)):
-    return HTMLResponse(render_dashboard(get_inventory_items(db)))
-
-
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page(db: Session = Depends(get_db)):
     return HTMLResponse(render_dashboard(get_inventory_items(db)))
+
+
+@app.get("/qa", response_class=HTMLResponse)
+def qa_page(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    require_admin(current_user)
+    return HTMLResponse(render_quality_dashboard(get_inventory_items(db)))
 
 
 @app.get("/products/{product_id}/batches")

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StockPulse Roles</title>
+    <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <style>
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top, #1e293b, #020617 60%); color: #e5e7eb; }
+        .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+        .hero { display: grid; gap: 14px; margin-bottom: 28px; }
+        .brand { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; width: fit-content; border-radius: 999px; background: rgba(15,23,42,.72); border: 1px solid rgba(148,163,184,.18); box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+        .brand img { width: 30px; height: 30px; }
+        .brand span { font-weight: 800; letter-spacing: .02em; }
+        .eyebrow { color: #38bdf8; text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 700; }
+        h1 { margin: 0; font-size: clamp(2.3rem, 5vw, 4rem); line-height: 1.02; }
+        .sub { color: #cbd5e1; max-width: 760px; line-height: 1.7; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .card { background: rgba(17, 24, 39, .92); border: 1px solid rgba(148, 163, 184, .16); border-radius: 20px; padding: 20px; box-shadow: 0 24px 60px rgba(0,0,0,.22); }
+        .card h2 { margin: 0 0 10px; font-size: 1.1rem; }
+        .card p { color: #9ca3af; line-height: 1.6; margin: 0 0 16px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; min-width: 140px; padding: 12px 16px; border-radius: 12px; text-decoration: none; font-weight: 800; color: #0f172a; background: linear-gradient(135deg, #38bdf8, #22c55e); }
+        .btn.secondary { background: transparent; color: #93c5fd; border: 1px solid rgba(147,197,253,.25); }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <section class="hero">
+            <div class="brand"><img src="/static/stockpulse-icon.svg" alt="StockPulse icon" /><span>StockPulse</span></div>
+            <div class="eyebrow">StockPulse AI</div>
+            <h1>Choose your access level.</h1>
+            <p class="sub">Public users can register as plain users only. Admin and supplier accounts are provisioned separately, and each portal keeps the experience scoped to that role.</p>
+        </section>
+
+        <section class="grid">
+            <article class="card"><h2>User</h2><p>Register, verify OTP, capture scans, and view your personal history.</p><a class="btn" href="/user">Open user page</a></article>
+            <article class="card"><h2>Admin</h2><p>Sign in to provision accounts, review scans, and manage inventory data.</p><a class="btn" href="/admin">Open admin page</a></article>
+            <article class="card"><h2>Supplier</h2><p>View supplier-only movement, scans, and replenishment signals for your linked products.</p><a class="btn" href="/supplier">Open supplier page</a></article>
+            <article class="card"><h2>QA / Usability</h2><p>Review product health, release risk, and UI usability in one polished QA view.</p><a class="btn secondary" href="/qa">Open QA dashboard</a></article>
+        </section>
+    </main>
+</body>
+</html>

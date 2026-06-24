@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StockPulse Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <style>
+        :root { color-scheme: light; --panel: #111827; --muted: #94a3b8; --accent: #38bdf8; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: linear-gradient(180deg, #020617 0%, #0f172a 55%, #111827 100%); color: #e5e7eb; }
+        .shell { max-width: 1200px; margin: 0 auto; padding: 32px 20px 56px; }
+        .hero { display: grid; gap: 16px; margin-bottom: 24px; }
+        .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: 0.16em; font-size: 12px; font-weight: 700; }
+        h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1.05; }
+        .sub { max-width: 780px; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 24px 0; }
+        .stat { background: rgba(31, 41, 55, 0.88); border: 1px solid rgba(148, 163, 184, 0.14); border-radius: 18px; padding: 18px; }
+        .stat-label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+        .stat-value { font-size: 2rem; font-weight: 800; }
+        .panel { background: rgba(17, 24, 39, 0.92); border: 1px solid rgba(148, 163, 184, 0.14); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28); }
+        .panel-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid rgba(148, 163, 184, 0.14); }
+        .panel-head h2 { margin: 0; font-size: 1.1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(148, 163, 184, 0.1); }
+        th { color: var(--muted); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .status { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+        .status-healthy { background: rgba(16, 185, 129, 0.14); color: #6ee7b7; }
+        .status-low_stock, .status-expiring_soon { background: rgba(245, 158, 11, 0.14); color: #fcd34d; }
+        .status-out_of_stock, .status-expired, .status-depleted { background: rgba(239, 68, 68, 0.14); color: #fca5a5; }
+        .empty { text-align: center; color: var(--muted); padding: 36px 16px; }
+        .footer { margin-top: 18px; color: var(--muted); font-size: 13px; }
+        @media (max-width: 720px) { .panel-head { flex-direction: column; align-items: flex-start; gap: 8px; } th:nth-child(3), td:nth-child(3), th:nth-child(6), td:nth-child(6), th:nth-child(7), td:nth-child(7) { display: none; } }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <section class="hero">
+            <div class="eyebrow">StockPulse AI</div>
+            <h1>Inventory dashboard for FEFO stock and replenishment.</h1>
+            <p class="sub">Track products, remaining units, batch expiry risk, and low-stock signals from the same Python prototype that powers the API.</p>
+        </section>
+
+        <section class="stats">
+            <div class="stat"><div class="stat-label">Products tracked</div><div class="stat-value">{{ total_products }}</div></div>
+            <div class="stat"><div class="stat-label">Units remaining</div><div class="stat-value">{{ total_units }}</div></div>
+            <div class="stat"><div class="stat-label">Low stock</div><div class="stat-value">{{ low_stock }}</div></div>
+            <div class="stat"><div class="stat-label">Out of stock</div><div class="stat-value">{{ out_of_stock }}</div></div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <h2>Current inventory</h2>
+                <div class="footer">Use the API at /inventory and /products/&lt;id&gt;/batches for programmatic access.</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Remaining</th>
+                        <th>Safety stock</th>
+                        <th>Batches</th>
+                        <th>Next expiry</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.sku }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.category or '-' }}</td>
+                        <td>{{ item.total_remaining }}</td>
+                        <td>{{ item.safety_stock }}</td>
+                        <td>{{ item.batch_count }}</td>
+                        <td>{{ item.next_expiry or '-' }}</td>
+                        <td><span class="status status-{{ item.status }}">{{ item.status }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="8" class="empty">No products yet. Create suppliers, products, and batches to populate the dashboard.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+</html>

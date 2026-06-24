@@ -43,15 +43,25 @@ flowchart TD
     N --> O[GitHub Actions tests and publishes the image]
 ```
 
+## Visual Tour
+
+| Surface | What It Shows | Why It Matters |
+| --- | --- | --- |
+| Landing page | Role entry points and QA access | Keeps first-time users on the correct path |
+| User portal | Register, OTP verify, scan capture | Guides the core operational flow |
+| Admin portal | Provisioning and inventory management | Keeps control actions separate from public flows |
+| Supplier page | Supplier-only movement and scans | Preserves role-based visibility |
+| QA dashboard | Product health and usability checks | Gives a fast read on release quality |
+
 ## What Is In The Repo
 
-The main app lives in [Project 1](Project%201/). Important files:
+The main app lives in [StockPulse](StockPulse/). Important files:
 
-- [Project 1/app.py](Project%201/app.py) for the FastAPI app and UI pages.
-- [Project 1/docker-compose.yml](Project%201/docker-compose.yml) for the multi-service deployment stack.
-- [Project 1/nginx.conf](Project%201/nginx.conf) for the load balancer.
+- [StockPulse/app.py](StockPulse/app.py) for the FastAPI app and UI pages.
+- [StockPulse/docker-compose.yml](StockPulse/docker-compose.yml) for the multi-service deployment stack.
+- [StockPulse/nginx.conf](StockPulse/nginx.conf) for the load balancer.
 - [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) for the active GitHub Actions pipeline.
-- [Project 1/README.md](Project%201/README.md) for the app-level setup and feature guide.
+- [StockPulse/README.md](StockPulse/README.md) for the app-level setup and feature guide.
 
 ## Active GitHub Actions Workflow
 
@@ -63,7 +73,7 @@ The workflow at [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) is ac
 ## Quick Start
 
 ```bash
-cd "Project 1"
+cd "StockPulse"
 docker compose up --build
 ```
 
@@ -71,9 +81,8 @@ Then open the app at [http://localhost:8000](http://localhost:8000).
 
 ## Repository Layout
 
-- `Project 1/` - main StockPulse app, Docker, tests, and GitHub Actions.
-- `tutorials/` - small sample scripts and supporting files.
+- `StockPulse/` - main StockPulse app, Docker, tests, and GitHub Actions.
 
 ## Next Step
 
-If you want, the next useful upgrade is to rename the repository itself on GitHub to StockPulse and add screenshots to the README.
+If you want, the next useful upgrade is to add actual screenshots from the running UI and publish the repository under a GitHub slug that matches StockPulse.

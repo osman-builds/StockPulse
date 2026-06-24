@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ page_title }}</title>
+    <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <style>
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: linear-gradient(180deg, #020617 0%, #111827 100%); color: #e5e7eb; }
+        .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+        .hero { display: grid; gap: 14px; margin-bottom: 24px; }
+        .brand { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; width: fit-content; border-radius: 999px; background: rgba(15,23,42,.72); border: 1px solid rgba(148,163,184,.18); }
+        .brand img { width: 30px; height: 30px; }
+        .brand span { font-weight: 800; }
+        .eyebrow { color: #67e8f9; text-transform: uppercase; letter-spacing: .18em; font-size: 11px; font-weight: 800; }
+        h1 { margin: 0; font-size: clamp(2.2rem, 4vw, 3.8rem); line-height: 1; }
+        .sub { color: #cbd5e1; max-width: 820px; line-height: 1.65; margin: 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        .card { background: rgba(15, 23, 42, .88); border: 1px solid rgba(148, 163, 184, .14); border-radius: 24px; padding: 20px; }
+        .card h2 { margin: 0 0 12px; font-size: 1.05rem; }
+        .row { display: grid; gap: 10px; }
+        label { display: grid; gap: 6px; font-size: 13px; color: #cbd5e1; margin-bottom: 12px; }
+        input, select, button { width: 100%; border-radius: 14px; border: 1px solid rgba(148, 163, 184, .2); background: #0f172a; color: #e5e7eb; padding: 12px 14px; font: inherit; }
+        button { cursor: pointer; background: linear-gradient(135deg, #38bdf8, #22c55e); color: #0f172a; font-weight: 800; border: none; }
+        .muted { color: #9ca3af; }
+        .status { padding: 12px 14px; border-radius: 14px; background: rgba(148, 163, 184, .09); color: #dbeafe; min-height: 44px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <section class="hero">
+            <div class="brand"><img src="/static/stockpulse-icon.svg" alt="StockPulse icon" /><span>StockPulse</span></div>
+            <div class="eyebrow">StockPulse AI</div>
+            <h1>{{ page_title }}</h1>
+            <p class="sub">{{ page_subtitle }}</p>
+        </section>
+
+        <section class="grid">
+            {% if page_role == "user" %}
+            <div class="card">
+                <h2>Getting started</h2>
+                <p class="muted">Finish one step at a time. Only the current step is shown. If you already have an account, jump straight to login.</p>
+                <div class="status">1. Register\n2. Verify OTP\n3. Login\n4. Dashboard</div>
+            </div>
+            <div class="card flow-card" data-step="register">
+                <h2>Register</h2>
+                <form id="register-form" class="row">
+                    <label>Username<input id="reg_username" required></label>
+                    <label>Email<input id="reg_email" type="email" required></label>
+                    <label>Password<input id="reg_password" type="password" minlength="8" required></label>
+                    <button type="submit">Create account and send OTP</button>
+                </form>
+                <button type="button" class="stepbtn secondary flow-link" data-flow-action="login">I already have an account</button>
+            </div>
+            <div class="card flow-card hidden" data-step="verify">
+                <h2>Verify OTP</h2>
+                <form id="verify-form" class="row">
+                    <label>Email<input id="otp_email" type="email" required></label>
+                    <label>OTP code<input id="otp_code" inputmode="numeric" maxlength="6" required></label>
+                    <button type="submit">Verify and continue</button>
+                </form>
+            </div>
+            <div class="card flow-card hidden" data-step="login">
+                <h2>Login</h2>
+                <form id="login-form" class="row">
+                    <label>Email or username<input id="login_identifier" required></label>
+                    <label>Password<input id="login_password" type="password" required></label>
+                    <button type="submit">Sign in</button>
+                </form>
+            </div>
+            <div class="card flow-card hidden" data-step="dashboard">
+                <h2>Profile</h2>
+                <div id="profile" class="status">Load a token to view profile details.</div>
+            </div>
+            <div class="card flow-card hidden" data-step="dashboard">
+                <h2>Scan product</h2>
+                <form id="scan-form" class="row">
+                    <label>Barcode or SKU<input id="scan_code" placeholder="Scan with camera or type manually" required></label>
+                    <label>Quantity<input id="scan_qty" type="number" min="1" value="1" required></label>
+                    <button type="submit">Capture scan</button>
+                </form>
+            </div>
+            <div class="card flow-card hidden" data-step="dashboard">
+                <h2>Recent scans</h2>
+                <div id="scan-history" class="status">No scans captured yet.</div>
+            </div>
+            {% else %}
+            <div class="card">
+                <h2>Provision account</h2>
+                <p class="muted">Admin provisioning stays separate from public OTP verification at /auth/verify-otp.</p>
+                <form id="admin-create-form" class="row">
+                    <label>Username<input id="admin_new_username" required></label>
+                    <label>Email<input id="admin_new_email" type="email" required></label>
+                    <label>Password<input id="admin_new_password" type="password" minlength="8" required></label>
+                    <label>Role<select id="admin_new_role"><option value="admin">Admin</option><option value="supplier">Supplier</option></select></label>
+                    <label>Supplier ID (for supplier accounts)<input id="admin_new_supplier_id" inputmode="numeric" placeholder="Optional"></label>
+                    <button type="submit">Create account</button>
+                </form>
+            </div>
+            <div class="card"><h2>Inventory</h2><div id="inventory" class="status">Inventory loads after sign in.</div></div>
+            <div class="card"><h2>Admin users</h2><div id="admin-users" class="status">User list loads after sign in.</div></div>
+            <div class="card"><h2>Recent scans</h2><div id="scan-history" class="status">Scan history loads after sign in.</div></div>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

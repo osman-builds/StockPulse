@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StockPulse QA & Usability</title>
+    <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <style>
+        :root {
+            --bg: #07111f;
+            --panel: rgba(15, 23, 42, .84);
+            --card: rgba(17, 24, 39, .92);
+            --border: rgba(148, 163, 184, .16);
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --accent: #67e8f9;
+            --good: #22c55e;
+            --warn: #f59e0b;
+            --bad: #ef4444;
+            color-scheme: dark;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(56, 189, 248, .18), transparent 32%),
+                radial-gradient(circle at 85% 0%, rgba(34, 197, 94, .16), transparent 26%),
+                linear-gradient(180deg, #020617 0%, #0f172a 52%, #111827 100%);
+        }
+        .wrap { max-width: 1240px; margin: 0 auto; padding: 30px 18px 60px; }
+        .hero {
+            display: grid;
+            gap: 14px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            background: rgba(15, 23, 42, .58);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 28px 80px rgba(0,0,0,.28);
+            margin-bottom: 18px;
+        }
+        .brand {
+            display: inline-flex; align-items: center; gap: 10px; width: fit-content;
+            padding: 10px 14px; border-radius: 999px; background: rgba(15,23,42,.72); border: 1px solid rgba(148,163,184,.18);
+        }
+        .brand img { width: 30px; height: 30px; }
+        .brand span { font-weight: 800; letter-spacing: .02em; }
+        .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .18em; font-size: 11px; font-weight: 800; }
+        h1 { margin: 0; font-size: clamp(2.2rem, 4vw, 4rem); line-height: 1.02; letter-spacing: -0.04em; }
+        .sub { margin: 0; max-width: 880px; color: #cbd5e1; line-height: 1.7; }
+        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            min-width: 160px; padding: 12px 16px; border-radius: 14px; text-decoration: none; font-weight: 800;
+            color: #04111f; background: linear-gradient(135deg, #67e8f9, #22c55e);
+        }
+        .btn.secondary { color: #cbd5e1; background: transparent; border: 1px solid rgba(147,197,253,.24); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 18px 0; }
+        .stat {
+            background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 18px;
+            box-shadow: 0 22px 50px rgba(0,0,0,.18);
+        }
+        .stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
+        .stat .value { margin-top: 10px; font-size: 2rem; font-weight: 800; }
+        .stat .note { margin-top: 8px; color: #cbd5e1; font-size: 13px; line-height: 1.5; }
+        .grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: start; }
+        .stack { display: grid; gap: 16px; }
+        .card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.22);
+        }
+        .card h2 { margin: 0 0 12px; font-size: 1.05rem; letter-spacing: -0.02em; }
+        .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .metric {
+            padding: 14px; border-radius: 18px; background: rgba(2, 6, 23, .45); border: 1px solid rgba(148,163,184,.12);
+        }
+        .metric .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
+        .metric .value { margin-top: 8px; font-size: 1.6rem; font-weight: 800; }
+        .metric .detail { margin-top: 6px; color: #cbd5e1; font-size: 13px; line-height: 1.5; }
+        .score {
+            display: grid; gap: 12px; padding: 18px; border-radius: 22px; background: linear-gradient(180deg, rgba(34,197,94,.18), rgba(2,6,23,.08)); border: 1px solid rgba(34,197,94,.22);
+        }
+        .score .ring { width: 108px; height: 108px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(from 180deg, #67e8f9 0deg, #22c55e calc(var(--score) * 3.6deg), rgba(255,255,255,.08) 0); }
+        .score .ring > div { width: 82px; height: 82px; border-radius: 50%; background: #07111f; display: grid; place-items: center; text-align: center; }
+        .score .ring strong { font-size: 1.6rem; }
+        .score .caption { color: #cbd5e1; line-height: 1.6; }
+        .checks { display: grid; gap: 10px; }
+        .check {
+            display: grid; gap: 4px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.12);
+        }
+        .check-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+        .pill { padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+        .pass { background: rgba(34,197,94,.14); color: #86efac; }
+        .warn { background: rgba(245, 158, 11, .14); color: #fcd34d; }
+        .fail { background: rgba(239, 68, 68, .14); color: #fca5a5; }
+        .check p { margin: 0; color: #cbd5e1; line-height: 1.55; }
+        .recommendations { display: grid; gap: 10px; }
+        .rec { padding: 14px; border-radius: 16px; background: rgba(2,6,23,.45); border: 1px solid rgba(148,163,184,.12); color: #dbeafe; line-height: 1.55; }
+        .inventory-list { display: grid; gap: 10px; }
+        .item {
+            padding: 14px; border-radius: 16px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.12);
+        }
+        .item strong { display: block; margin-bottom: 6px; }
+        .item .meta { color: #9ca3af; font-size: 13px; line-height: 1.5; }
+        @media (max-width: 960px) {
+            .grid { grid-template-columns: 1fr; }
+            .metric-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <section class="hero">
+            <div class="brand"><img src="/static/stockpulse-icon.svg" alt="StockPulse icon" /><span>StockPulse</span></div>
+            <div class="eyebrow">QA and Usability</div>
+            <h1>Quality checks for product health, usability, and release readiness.</h1>
+            <p class="sub">This view acts like a QA engineer’s review board: it summarizes stock quality signals, shows a usability score for the current UI, and points out what needs attention before release or rollout.</p>
+            <div class="hero-actions">
+                <a class="btn" href="/dashboard">Open inventory dashboard</a>
+                <a class="btn secondary" href="/">Back to landing</a>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stat"><div class="label">Quality score</div><div class="value">{{ quality_score }}</div><div class="note">Inventory health across stock, expiry, and depletion signals.</div></div>
+            <div class="stat"><div class="label">Usability score</div><div class="value">{{ usability_score }}</div><div class="note">Clarity of actions, feedback loops, and responsive layout.</div></div>
+            <div class="stat"><div class="label">Products tracked</div><div class="value">{{ total_products }}</div><div class="note">How many products are in the current release surface.</div></div>
+            <div class="stat"><div class="label">Units remaining</div><div class="value">{{ total_units }}</div><div class="note">Remaining inventory available to serve users.</div></div>
+        </section>
+
+        <section class="grid">
+            <div class="stack">
+                <div class="card">
+                    <h2>Release health</h2>
+                    <div class="metric-grid">
+                        <div class="metric"><div class="label">Healthy products</div><div class="value">{{ healthy_products }}</div><div class="detail">Items above safety stock and not nearing expiry.</div></div>
+                        <div class="metric"><div class="label">Low stock</div><div class="value">{{ low_stock_products }}</div><div class="detail">Products that need replenishment attention.</div></div>
+                        <div class="metric"><div class="label">Out of stock</div><div class="value">{{ out_of_stock_products }}</div><div class="detail">Items blocked from immediate fulfillment.</div></div>
+                        <div class="metric"><div class="label">Expiring soon</div><div class="value">{{ expiring_products }}</div><div class="detail">Batches that should be rotated first.</div></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Usability checks</h2>
+                    <div class="checks">
+                        {% for check in checks %}
+                        <div class="check">
+                            <div class="check-head">
+                                <strong>{{ check.label }}</strong>
+                                <span class="pill pass">{{ check.value }}</span>
+                            </div>
+                            <p>{{ check.detail }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="stack">
+                <div class="card score" style="--score: {{ quality_score }};">
+                    <h2>Overall QA score</h2>
+                    <div class="ring"><div><strong>{{ quality_score }}</strong></div></div>
+                    <div class="caption">Average safety stock: {{ safety_stock_average }}. This score is a practical snapshot of inventory health, release risk, and how cleanly the UI surfaces the main actions.</div>
+                </div>
+
+                <div class="card">
+                    <h2>Release notes</h2>
+                    <div class="recommendations">
+                        {% for recommendation in recommendations %}
+                        <div class="rec">{{ recommendation }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Sample inventory view</h2>
+                    <div class="inventory-list">
+                        {% for item in items[:3] %}
+                        <div class="item">
+                            <strong>{{ item.sku }} - {{ item.name }}</strong>
+                            <div class="meta">Remaining: {{ item.total_remaining }} | Safety stock: {{ item.safety_stock }} | Status: {{ item.status }}</div>
+                        </div>
+                        {% else %}
+                        <div class="item">
+                            <strong>No products loaded</strong>
+                            <div class="meta">Add suppliers, products, and batches to populate quality metrics.</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

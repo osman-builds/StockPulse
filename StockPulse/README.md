@@ -18,6 +18,16 @@ The original prototype was a single app process with direct reads from the datab
 - An Nginx load balancer because traffic should be spread across two app replicas instead of depending on one container.
 - GitHub Actions because the same build and test flow should run automatically before the Docker image is published.
 
+## Visual Tour
+
+| Page | Purpose | QA / UX Signal |
+| --- | --- | --- |
+| Landing page | Role entry point | Clear navigation into user, admin, supplier, and QA views |
+| User portal | Registration and scan flow | Confirms OTP, login, and scan capture are usable |
+| Admin portal | Provisioning and inventory control | Keeps management actions isolated from public users |
+| Supplier dashboard | Supplier movement visibility | Checks that role boundaries are enforced |
+| QA dashboard | Product quality and usability review | Gives a quick release-quality snapshot |
+
 ## How The System Works
 
 ```mermaid
@@ -34,6 +44,7 @@ flowchart TD
 	J --> K[Capture scan and store history]
 	D --> L[Provision accounts and inspect inventory]
 	E --> M[Track supplier movement and scans]
+	K --> Q[QA dashboard summarizes quality and usability]
 	K --> N[Inventory dashboard stays current through Redis cache]
 	N --> O[Nginx balances traffic across two app replicas]
 ```
@@ -124,6 +135,7 @@ Browser pages:
 - `/user` for account registration, OTP verification, user access, and camera barcode capture.
 - `/admin` for admin registration, user listing, and admin access.
 - `/supplier` for supplier-specific stock movement and replenishment visibility.
+- `/qa` for quality, metric, and usability review.
 - All portals include a scan-capture form and scan history panel backed by persisted scan events.
 
 Email and admin setup:
@@ -134,6 +146,8 @@ Email and admin setup:
 What's included:
 - `main.py` — Uvicorn entrypoint for the app.
 - `app.py` — FastAPI endpoints for suppliers, products, batches, sales (FEFO deduction), scan capture, inventory summaries, dashboard UI, and ROP calculation.
+- `presentation.py` — Jinja rendering helpers for the HTML views.
+- `templates/` — StockPulse page templates, including the QA dashboard.
 - `models.py` / `db.py` — SQLAlchemy models and DB initialization.
 - `rop.py` — Velocity and ROP calculations.
 - `tests/` — unit tests for the ROP math, inventory helpers, and dashboard render.
