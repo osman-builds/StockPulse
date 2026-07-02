@@ -1,6 +1,6 @@
 # StockPulse
 
-[![CI/CD](https://github.com/osman-builds/Hugging-Face--Projects/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/osman-builds/Hugging-Face--Projects/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/osman-builds/StockPulse/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/osman-builds/StockPulse/actions/workflows/ci-cd.yml)
 
 StockPulse is a FastAPI inventory and barcode-scanning app with role-based portals, PostgreSQL, Redis caching, Docker, and GitHub Actions for automated testing and image publishing. This is the main README for the whole repository.
 
