@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Date, Float, ForeignKey
+from sqlalchemy import Boolean, CheckConstraint, Column, Integer, String, DateTime, Date, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from db import Base
@@ -18,13 +18,16 @@ class Supplier(Base):
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (
+        CheckConstraint("role IN ('user', 'admin', 'supplier')", name="ck_users_role"),
+    )
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    role = Column(String, default="user")
-    is_active = Column(Integer, default=1)
-    is_verified = Column(Integer, default=0)
+    role = Column(String(20), default="user")
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
     supplier_id = Column(Integer, ForeignKey("suppliers.id"), nullable=True)
     otp_code_hash = Column(String, nullable=True)
     otp_expires_at = Column(DateTime(timezone=True), nullable=True)
@@ -90,5 +93,5 @@ class UserSession(Base):
     created_at = Column(DateTime(timezone=True), default=_utc_now)
     last_seen_at = Column(DateTime(timezone=True), default=_utc_now)
     expires_at = Column(DateTime(timezone=True), nullable=False)
-    revoked = Column(Integer, default=0)
+    revoked = Column(Boolean, default=False)
     user = relationship("User")

@@ -3,192 +3,371 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Supplier Dashboard</title>
+    <meta name="description" content="StockPulse Supplier Dashboard — track product movement and replenishment signals." />
+    <title>Supplier Dashboard — StockPulse</title>
     <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
-        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: linear-gradient(180deg, #020617 0%, #111827 100%); color: #e5e7eb; }
-        .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 18px 56px; }
-        .hero { display: grid; gap: 12px; margin-bottom: 24px; }
-        .brand { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; width: fit-content; border-radius: 999px; background: rgba(15,23,42,.72); border: 1px solid rgba(148,163,184,.18); box-shadow: 0 20px 50px rgba(0,0,0,.18); }
-        .brand img { width: 30px; height: 30px; }
-        .brand span { font-weight: 800; letter-spacing: .02em; }
-        .eyebrow { color: #38bdf8; text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 700; }
-        h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.05; }
-        .sub { color: #9ca3af; max-width: 760px; line-height: 1.6; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-        .card { background: rgba(17, 24, 39, .92); border: 1px solid rgba(148, 163, 184, .14); border-radius: 18px; padding: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.22); }
-        .card h2 { margin: 0 0 12px; font-size: 1.05rem; }
-        .status { padding: 10px 12px; border-radius: 12px; background: rgba(148, 163, 184, .08); color: #cbd5e1; min-height: 44px; white-space: pre-wrap; }
-        .item { background: rgba(255,255,255,.03); border: 1px solid rgba(148, 163, 184, .12); border-radius: 14px; padding: 12px; margin-top: 10px; }
-        .topbar { display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom: 16px; }
-        .linkbtn { background: transparent; color: #93c5fd; border: 1px solid rgba(147,197,253,.25); padding: 10px 12px; width: auto; border-radius: 12px; }
-        input, button { width: 100%; border-radius: 12px; border: 1px solid rgba(148, 163, 184, .2); background: #0f172a; color: #e5e7eb; padding: 12px 14px; font: inherit; }
-        button { cursor: pointer; background: linear-gradient(135deg, #38bdf8, #22c55e); color: #0f172a; font-weight: 800; border: none; }
-        label { display:grid; gap:6px; font-size:13px; color:#cbd5e1; margin-bottom: 12px; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:#09090b; --s1:#18181b; --s2:#27272a; --s3:#3f3f46;
+            --bd:#27272a; --bd2:#3f3f46;
+            --t1:#fafafa; --t2:#a1a1aa; --t3:#71717a;
+            --ind:#6366f1; --ind2:#818cf8; --im:rgba(99,102,241,.1);
+            --grn:#22c55e; --gmuted:rgba(34,197,94,.1);
+            --amb:#f59e0b; --amuted:rgba(245,158,11,.1);
+            --red:#ef4444; --rmuted:rgba(239,68,68,.1);
+            --r:8px; --rl:12px;
+        }
+        html { font-size:14px; }
+        body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--t1); min-height:100vh; -webkit-font-smoothing:antialiased; display:flex; }
+
+        /* Sidebar */
+        .sidebar { width:220px; flex-shrink:0; background:var(--s1); border-right:1px solid var(--bd); display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto; }
+        .sb-brand { display:flex; align-items:center; gap:10px; padding:16px 14px; border-bottom:1px solid var(--bd); }
+        .sb-brand img { width:22px; height:22px; }
+        .sb-brand-name { font-size:14px; font-weight:700; letter-spacing:-.02em; }
+        .sb-section { padding:16px 8px 4px; font-size:10.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--t3); }
+        .sb-nav { padding:4px 8px; display:flex; flex-direction:column; gap:2px; }
+        .sb-link { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:6px; text-decoration:none; color:var(--t2); font-size:13px; font-weight:500; transition:background .15s, color .15s; }
+        .sb-link:hover { background:var(--s2); color:var(--t1); }
+        .sb-link.active { background:var(--gmuted); color:#86efac; font-weight:600; }
+        .sb-link svg { width:15px; height:15px; flex-shrink:0; }
+        .sb-footer { margin-top:auto; padding:12px 10px; border-top:1px solid var(--bd); }
+        .sb-user { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:var(--r); background:var(--s2); }
+        .sb-avatar { width:26px; height:26px; border-radius:50%; background:var(--gmuted); border:1px solid rgba(34,197,94,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .sb-avatar svg { width:13px; height:13px; color:#86efac; }
+        .sb-user-info { flex:1; min-width:0; }
+        .sb-user-name { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .sb-user-sub { font-size:11px; color:var(--t3); }
+        .sb-logout-btn { padding:4px; border-radius:5px; background:transparent; border:none; color:var(--t3); cursor:pointer; display:flex; align-items:center; transition:color .15s; }
+        .sb-logout-btn:hover { color:var(--t1); }
+        .sb-logout-btn svg { width:14px; height:14px; }
+
+        /* Main */
+        .main { flex:1; min-width:0; display:flex; flex-direction:column; }
+        .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:52px; border-bottom:1px solid var(--bd); flex-shrink:0; }
+        .topbar-title { font-size:14px; font-weight:600; }
+        .session-label { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--t2); }
+        .sdot { width:7px; height:7px; border-radius:50%; }
+        .sdot-on { background:var(--grn); box-shadow:0 0 8px var(--grn); animation:blink 2s infinite; }
+        .sdot-off { background:var(--t3); }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+        .content { flex:1; padding:24px; }
+
+        /* Grid */
+        .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:16px; }
+        .span-full { grid-column:1/-1; }
+
+        /* Card */
+        .card { background:var(--s1); border:1px solid var(--bd); border-radius:var(--rl); overflow:hidden; }
+        .card-head { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--bd); }
+        .card-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
+        .card-title svg { width:14px; height:14px; color:var(--t3); }
+        .card-body { padding:18px; }
+
+        /* Form */
+        .fg { margin-bottom:14px; }
+        .fl { display:block; font-size:12px; font-weight:500; color:var(--t2); margin-bottom:6px; }
+        .fi { width:100%; padding:9px 12px; background:var(--bg); border:1px solid var(--bd2); border-radius:var(--r); color:var(--t1); font-size:13.5px; font-family:inherit; transition:border-color .15s,box-shadow .15s; outline:none; }
+        .fi:focus { border-color:var(--ind); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+        .fi::placeholder { color:var(--t3); }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:9px 16px; border-radius:var(--r); font-size:13.5px; font-weight:600; font-family:inherit; border:none; cursor:pointer; transition:opacity .15s,transform .1s; }
+        .btn:hover { opacity:.85; }
+        .btn:active { transform:scale(.99); }
+        .btn-full { width:100%; }
+        .btn-primary { background:var(--ind); color:#fff; }
+        .btn svg { width:14px; height:14px; }
+
+        /* Info box */
+        .info-box { padding:11px 14px; border-radius:var(--r); background:var(--s2); border:1px solid var(--bd2); font-size:12.5px; color:var(--t2); white-space:pre-wrap; line-height:1.6; }
+        .info-box.code { font-family:'SF Mono','Fira Code',monospace; font-size:11.5px; }
+
+        /* Movement item */
+        .mv-item { padding:12px; border-radius:var(--r); background:var(--s2); border:1px solid var(--bd2); margin-bottom:8px; }
+        .mv-item:last-child { margin-bottom:0; }
+        .mv-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+        .mv-sku { font-family:monospace; font-size:11px; color:var(--ind2); font-weight:700; }
+        .mv-name { font-size:13px; font-weight:600; }
+        .mv-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+        .mv-stat { background:var(--s1); border:1px solid var(--bd); border-radius:6px; padding:8px; }
+        .mv-stat-label { font-size:10px; font-weight:500; color:var(--t3); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+        .mv-stat-value { font-size:16px; font-weight:800; color:var(--t1); }
+
+        /* Scan history */
+        .scan-item { padding:10px; border-radius:var(--r); background:var(--s2); border:1px solid var(--bd2); margin-bottom:8px; }
+        .scan-item:last-child { margin-bottom:0; }
+        .si-top { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+        .si-sku { font-family:monospace; font-size:11px; color:var(--ind2); font-weight:700; }
+        .si-name { font-size:12.5px; font-weight:600; }
+        .si-meta { font-size:11.5px; color:var(--t3); }
+
+        /* Badges */
+        .badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+        .badge::before { content:''; width:5px; height:5px; border-radius:50%; }
+        .badge-healthy { background:var(--gmuted); color:#86efac; border:1px solid rgba(34,197,94,.2); }
+        .badge-healthy::before { background:var(--grn); }
+        .badge-low_stock,.badge-expiring_soon { background:var(--amuted); color:#fcd34d; border:1px solid rgba(245,158,11,.2); }
+        .badge-low_stock::before,.badge-expiring_soon::before { background:var(--amb); }
+        .badge-out_of_stock,.badge-expired,.badge-depleted { background:var(--rmuted); color:#fca5a5; border:1px solid rgba(239,68,68,.2); }
+        .badge-out_of_stock::before,.badge-expired::before,.badge-depleted::before { background:var(--red); }
+
+        @media(max-width:768px){ .sidebar{display:none;} .content{padding:14px;} }
     </style>
 </head>
 <body>
-    <main class="wrap">
-        <section class="hero">
-            <div class="brand"><img src="/static/stockpulse-icon.svg" alt="StockPulse icon" /><span>StockPulse</span></div>
-            <div class="eyebrow">StockPulse AI</div>
-            <h1>Supplier Dashboard</h1>
-            <p class="sub">Suppliers only see their own stock movement and replenishment signals. Accounts are provisioned by an admin.</p>
-        </section>
-
-        <div class="topbar">
-            <div id="session" class="status">No active session.</div>
-            <button class="linkbtn" id="logout">Logout</button>
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sb-brand">
+        <img src="/static/stockpulse-icon.svg" alt="StockPulse" />
+        <span class="sb-brand-name">StockPulse</span>
+    </div>
+    <div class="sb-section">Navigation</div>
+    <nav class="sb-nav">
+        <a href="/" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+            Home
+        </a>
+        <a href="/dashboard" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+            Inventory
+        </a>
+        <a href="/admin" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            Admin
+        </a>
+        <a href="/supplier" class="sb-link active">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 1-.987-1.106v-.958" /></svg>
+            Supplier
+        </a>
+        <a href="/qa" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+            QA Report
+        </a>
+    </nav>
+    <div class="sb-footer">
+        <div class="sb-user">
+            <div class="sb-avatar">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 1-.987-1.106v-.958" /></svg>
+            </div>
+            <div class="sb-user-info">
+                <div class="sb-user-name" id="sb-name">Guest</div>
+                <div class="sb-user-sub" id="sb-sub">Not signed in</div>
+            </div>
+            <button class="sb-logout-btn" id="logout-btn" title="Sign out" style="display:none">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
+            </button>
         </div>
+    </div>
+</aside>
 
+<!-- Main -->
+<div class="main">
+    <div class="topbar">
+        <span class="topbar-title">Supplier Dashboard</span>
+        <div class="session-label">
+            <span class="sdot sdot-off" id="sdot"></span>
+            <span id="stext">Not signed in</span>
+        </div>
+    </div>
+    <div class="content">
         <div class="grid">
-            <section class="card">
-                <h2>Login</h2>
-                <form id="login-form">
-                    <label>Email or username<input id="login_identifier" required></label>
-                    <label>Password<input id="login_password" type="password" required></label>
-                    <button type="submit">Sign in</button>
-                </form>
-            </section>
 
-            <section class="card">
-                <h2>Profile</h2>
-                <div id="profile" class="status">Load a token to view profile details.</div>
-            </section>
+            <!-- Login -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
+                        Sign in
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="fg"><label class="fl">Email or username</label><input class="fi" id="login_identifier" autocomplete="username" required></div>
+                    <div class="fg"><label class="fl">Password</label><input class="fi" id="login_password" type="password" autocomplete="current-password" required></div>
+                    <button class="btn btn-primary btn-full" id="login-btn">
+                        Sign in
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                    </button>
+                </div>
+            </div>
 
-            <section class="card">
-                <h2>Supplier movement</h2>
-                <div id="movement"></div>
-            </section>
+            <!-- Profile -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                        Account profile
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="info-box code" id="profile">Sign in to view your account details.</div>
+                </div>
+            </div>
 
-            <section class="card">
-                <h2>Scan product</h2>
-                <form id="scan-form">
-                    <label>Scan code or SKU<input id="scan_code" required></label>
-                    <label>Quantity<input id="scan_qty" type="number" min="1" value="1" required></label>
-                    <button type="submit">Capture scan</button>
-                </form>
-            </section>
+            <!-- Scan product -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" /><path d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 17.25h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375M13.5 14.625h.75M16.5 14.625h.75M16.5 19.125h.75M13.5 19.125h3.375" /></svg>
+                        Capture scan
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="fg"><label class="fl">Scan code or SKU</label><input class="fi" id="scan_code" placeholder="Type or scan a code" required></div>
+                    <div class="fg"><label class="fl">Quantity</label><input class="fi" id="scan_qty" type="number" min="1" value="1" required></div>
+                    <button class="btn btn-primary btn-full" id="scan-btn">Capture scan</button>
+                </div>
+            </div>
 
-            <section class="card">
-                <h2>Recent scans</h2>
-                <div id="scans"></div>
-            </section>
+            <!-- Supplier movement (wide) -->
+            <div class="card span-full">
+                <div class="card-head">
+                    <div class="card-title">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>
+                        Product movement
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="movement"><div class="info-box">Sign in as a supplier to view product movement.</div></div>
+                </div>
+            </div>
+
+            <!-- Recent scans -->
+            <div class="card span-full">
+                <div class="card-head">
+                    <div class="card-title">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                        Recent scans
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="scans"><div class="info-box">Sign in to view your scan history.</div></div>
+                </div>
+            </div>
         </div>
-    </main>
+    </div>
+</div>
 
-    <script>
-        const tokenKey = "stockpulse_token";
-        const sessionEl = document.getElementById("session");
-        const profileEl = document.getElementById("profile");
-        const movementEl = document.getElementById("movement");
-        const scansEl = document.getElementById("scans");
+<script>
+const TK = "stockpulse_token";
+const tok  = () => localStorage.getItem(TK) || "";
+const authH = () => tok() ? { Authorization: `Bearer ${tok()}` } : {};
+const esc  = v => String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 
-        function token() { return localStorage.getItem(tokenKey) || ""; }
-        function authHeaders() { return token() ? { Authorization: `Bearer ${token()}` } : {}; }
-        function saveToken(nextToken) { localStorage.setItem(tokenKey, nextToken); refreshSession(); }
-        function escapeHtml(value) {
-            return String(value)
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#39;");
-        }
-        async function fetchJson(url, options = {}) {
-            const response = await fetch(url, options);
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(payload.detail || "Request failed");
-            return payload;
-        }
+async function api(url, opts = {}) {
+    const r = await fetch(url, opts);
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.detail || "Request failed");
+    return d;
+}
 
-        function renderMovement(items) {
-            movementEl.innerHTML = items.length ? items.map(item => `
-                <div class="item">
-                    <strong>${item.sku}</strong> - ${item.name}<br>
-                    Remaining: ${item.total_remaining} | Movement 14d: ${item.sales_last_14_days} | Status: ${item.status}
+const sdot    = document.getElementById("sdot");
+const stext   = document.getElementById("stext");
+const sbName  = document.getElementById("sb-name");
+const sbSub   = document.getElementById("sb-sub");
+const logoutBtn = document.getElementById("logout-btn");
+
+function setStatus(msg) { stext.textContent = msg; }
+
+function renderMovement(items) {
+    const el = document.getElementById("movement");
+    if (!el) return;
+    if (!items.length) { el.innerHTML = '<div class="info-box">No movement data available for your supplier account.</div>'; return; }
+    el.innerHTML = items.map(item => `
+        <div class="mv-item">
+            <div class="mv-head">
+                <div>
+                    <span class="mv-sku">${esc(item.sku)}</span>
+                    <span class="mv-name" style="margin-left:8px">${esc(item.name)}</span>
                 </div>
-            `).join("") : '<div class="status">No supplier movement available.</div>';
-        }
+                <span class="badge badge-${esc(item.status)}">${esc(item.status).replaceAll('_',' ')}</span>
+            </div>
+            <div class="mv-stats">
+                <div class="mv-stat"><div class="mv-stat-label">Remaining</div><div class="mv-stat-value">${esc(item.total_remaining)}</div></div>
+                <div class="mv-stat"><div class="mv-stat-label">Sold (14d)</div><div class="mv-stat-value">${esc(item.sales_last_14_days)}</div></div>
+                <div class="mv-stat"><div class="mv-stat-label">Safety stock</div><div class="mv-stat-value">${esc(item.safety_stock || '—')}</div></div>
+            </div>
+        </div>`).join('');
+}
 
-        function renderScans(items) {
-            scansEl.innerHTML = items.length ? items.map(item => `
-                <div class="item">
-                    <strong>${escapeHtml(item.product_sku)}</strong> - ${escapeHtml(item.product_name)}<br>
-                    Scan: ${escapeHtml(item.scan_code)} | Qty: ${escapeHtml(item.quantity)} | Remaining: ${escapeHtml(item.quantity_remaining_snapshot)}
-                </div>
-            `).join("") : '<div class="status">No scans captured yet.</div>';
-        }
+function renderScans(items) {
+    const el = document.getElementById("scans");
+    if (!el) return;
+    if (!items.length) { el.innerHTML = '<div class="info-box">No scans recorded yet.</div>'; return; }
+    el.innerHTML = items.slice(0,10).map(s => `
+        <div class="scan-item">
+            <div class="si-top">
+                <span class="si-sku">${esc(s.product_sku)}</span>
+                <span class="si-name">${esc(s.product_name)}</span>
+            </div>
+            <div class="si-meta">Qty: ${esc(s.quantity)} &nbsp;·&nbsp; Remaining: ${esc(s.quantity_remaining_snapshot)} &nbsp;·&nbsp; ${esc(s.captured_at || '—')}</div>
+        </div>`).join('');
+}
 
-        async function refreshSession() {
-            const currentToken = token();
-            if (!currentToken) {
-                sessionEl.textContent = "No active session.";
-                profileEl.textContent = "Load a token to view profile details.";
-                movementEl.innerHTML = "";
-                return;
-            }
-
-            try {
-                const me = await fetchJson("/auth/me", { headers: authHeaders() });
-                sessionEl.textContent = `Signed in as ${me.username} (${me.role}${me.is_verified ? ", verified" : ", unverified"})`;
-                profileEl.textContent = JSON.stringify(me, null, 2);
-                if (me.role === "supplier") {
-                    const movement = await fetchJson("/supplier/movement", { headers: authHeaders() });
-                    renderMovement(movement.items || []);
-                    const scans = await fetchJson("/scans/me", { headers: authHeaders() });
-                    renderScans(scans.items || []);
-                } else {
-                    movementEl.innerHTML = '<div class="status">Supplier access required.</div>';
-                }
-            } catch (error) {
-                sessionEl.textContent = error.message;
-                profileEl.textContent = error.message;
-            }
-        }
-
-        document.getElementById("login-form").addEventListener("submit", async (event) => {
-            event.preventDefault();
-            try {
-                const result = await fetchJson("/auth/token", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        identifier: document.getElementById("login_identifier").value,
-                        password: document.getElementById("login_password").value,
-                    }),
-                });
-                saveToken(result.access_token);
-                sessionEl.textContent = "Signed in.";
-            } catch (error) {
-                sessionEl.textContent = error.message;
-            }
+document.getElementById("login-btn").addEventListener("click", async () => {
+    try {
+        const r = await api("/auth/token", {
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ identifier: document.getElementById("login_identifier").value, password: document.getElementById("login_password").value }),
         });
+        localStorage.setItem(TK, r.access_token);
+        refresh();
+    } catch(e) { setStatus(e.message); }
+});
 
-        document.getElementById("logout").addEventListener("click", () => {
-            localStorage.removeItem(tokenKey);
-            refreshSession();
+document.getElementById("scan-btn").addEventListener("click", async () => {
+    try {
+        const r = await api("/scans", {
+            method:"POST", headers:{"Content-Type":"application/json", ...authH()},
+            body: JSON.stringify({ scan_code: document.getElementById("scan_code").value, quantity: Number(document.getElementById("scan_qty").value || 1) }),
         });
+        setStatus(r.message || "Scan captured.");
+        refresh();
+    } catch(e) { setStatus(e.message); }
+});
 
-        document.getElementById("scan-form").addEventListener("submit", async (event) => {
-            event.preventDefault();
-            try {
-                const result = await fetchJson("/scans", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", ...authHeaders() },
-                    body: JSON.stringify({
-                        scan_code: document.getElementById("scan_code").value,
-                        quantity: Number(document.getElementById("scan_qty").value || 1),
-                    }),
-                });
-                sessionEl.textContent = result.message || "Scan captured.";
-                refreshSession();
-            } catch (error) {
-                sessionEl.textContent = error.message;
-            }
-        });
+logoutBtn.addEventListener("click", () => { localStorage.removeItem(TK); refresh(); });
 
-        refreshSession();
-    </script>
+async function refresh() {
+    const t = tok();
+    if (!t) {
+        sdot.className = "sdot sdot-off";
+        setStatus("Not signed in");
+        sbName.textContent = "Guest"; sbSub.textContent = "Not signed in";
+        logoutBtn.style.display = "none";
+        document.getElementById("profile").textContent = "Sign in to view your account details.";
+        document.getElementById("movement").innerHTML = '<div class="info-box">Sign in as a supplier to view product movement.</div>';
+        document.getElementById("scans").innerHTML = '<div class="info-box">Sign in to view your scan history.</div>';
+        return;
+    }
+    try {
+        const me = await api("/auth/me", { headers: authH() });
+        sdot.className = "sdot sdot-on";
+        setStatus(`${me.username} · ${me.role}`);
+        sbName.textContent = me.username;
+        sbSub.textContent  = me.role + (me.is_verified ? " · verified" : " · unverified");
+        logoutBtn.style.display = "flex";
+        document.getElementById("profile").textContent = JSON.stringify(me, null, 2);
+
+        if (me.role === "supplier") {
+            const [movement, scans] = await Promise.all([
+                api("/supplier/movement", { headers: authH() }),
+                api("/scans/me",          { headers: authH() }),
+            ]);
+            renderMovement(movement.items || []);
+            renderScans(scans.items || []);
+        } else {
+            document.getElementById("movement").innerHTML = '<div class="info-box">Supplier role required to view movement data.</div>';
+        }
+    } catch(e) {
+        sdot.className = "sdot sdot-off";
+        setStatus(e.message);
+    }
+}
+
+refresh();
+</script>
 </body>
 </html>

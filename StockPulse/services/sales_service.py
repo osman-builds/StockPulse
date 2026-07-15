@@ -1,11 +1,20 @@
+"""
+Sale processing service — FEFO (First-Expired, First-Out) batch deduction.
+
+This is the single canonical implementation. The now-deleted sale_service.py was
+a duplicate that wrote timestamp=None to the sales table, breaking ROP calculations.
+"""
+from datetime import datetime, timezone
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from models import Sale
+from models import Batch, Sale
 from repositories.sales_repository import lock_fefo_batches
 
 
 def process_sale(db: Session, product_id: int, quantity: int) -> int:
+    """Deduct stock FEFO, record a Sale, return the sale ID."""
     qty_to_deduct = quantity
     batches = lock_fefo_batches(db, product_id)
     if not batches:
@@ -23,7 +32,11 @@ def process_sale(db: Session, product_id: int, quantity: int) -> int:
         db.rollback()
         raise HTTPException(status_code=400, detail="Not enough stock to fulfill sale")
 
-    sale = Sale(product_id=product_id, quantity=quantity, timestamp=None)
+    sale = Sale(
+        product_id=product_id,
+        quantity=quantity,
+        timestamp=datetime.now(timezone.utc),  # was None — broke ROP velocity
+    )
     db.add(sale)
     db.commit()
     db.refresh(sale)

@@ -1,17 +1,18 @@
 x-stockpulse-base: &stockpulse-base
   build:
     context: .
-  environment:
-    STOCKPULSE_DATABASE_URL: postgresql+psycopg://stockpulse:stockpulse@db:5432/stockpulse
-    STOCKPULSE_REDIS_URL: redis://redis:6379/0
-    STOCKPULSE_SECRET_KEY: stockpulse-dev-secret
-    STOCKPULSE_ADMIN_CODE: stockpulse-admin-dev
-    STOCKPULSE_CACHE_TTL_SECONDS: 30
+  env_file: .env
   depends_on:
     db:
       condition: service_healthy
     redis:
       condition: service_healthy
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 15s
   restart: unless-stopped
 
 services:
@@ -28,14 +29,15 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - stockpulse-a
-      - stockpulse-b
+      stockpulse-a:
+        condition: service_healthy
+      stockpulse-b:
+        condition: service_healthy
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    # No host port mapping — Redis is internal only
     volumes:
       - stockpulse-redis:/data
     healthcheck:
@@ -47,16 +49,12 @@ services:
 
   db:
     image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: stockpulse
-      POSTGRES_USER: stockpulse
-      POSTGRES_PASSWORD: stockpulse
-    ports:
-      - "5432:5432"
+    env_file: .env
+    # No host port mapping — DB is internal only
     volumes:
       - stockpulse-postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stockpulse -d stockpulse"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stockpulse} -d ${POSTGRES_DB:-stockpulse}"]
       interval: 5s
       timeout: 5s
       retries: 10

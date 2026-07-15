@@ -3,41 +3,237 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>StockPulse Roles</title>
+    <meta name="description" content="StockPulse — Real-time inventory management with FEFO batch tracking, expiry signals, and supplier intelligence." />
+    <title>StockPulse — Intelligent Inventory Platform</title>
     <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
-        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top, #1e293b, #020617 60%); color: #e5e7eb; }
-        .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
-        .hero { display: grid; gap: 14px; margin-bottom: 28px; }
-        .brand { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; width: fit-content; border-radius: 999px; background: rgba(15,23,42,.72); border: 1px solid rgba(148,163,184,.18); box-shadow: 0 20px 50px rgba(0,0,0,.18); }
-        .brand img { width: 30px; height: 30px; }
-        .brand span { font-weight: 800; letter-spacing: .02em; }
-        .eyebrow { color: #38bdf8; text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 700; }
-        h1 { margin: 0; font-size: clamp(2.3rem, 5vw, 4rem); line-height: 1.02; }
-        .sub { color: #cbd5e1; max-width: 760px; line-height: 1.7; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-        .card { background: rgba(17, 24, 39, .92); border: 1px solid rgba(148, 163, 184, .16); border-radius: 20px; padding: 20px; box-shadow: 0 24px 60px rgba(0,0,0,.22); }
-        .card h2 { margin: 0 0 10px; font-size: 1.1rem; }
-        .card p { color: #9ca3af; line-height: 1.6; margin: 0 0 16px; }
-        .btn { display: inline-flex; align-items: center; justify-content: center; min-width: 140px; padding: 12px 16px; border-radius: 12px; text-decoration: none; font-weight: 800; color: #0f172a; background: linear-gradient(135deg, #38bdf8, #22c55e); }
-        .btn.secondary { background: transparent; color: #93c5fd; border: 1px solid rgba(147,197,253,.25); }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:      #09090b;
+            --s1:      #18181b;
+            --s2:      #27272a;
+            --bd:      #27272a;
+            --bd2:     #3f3f46;
+            --t1:      #fafafa;
+            --t2:      #a1a1aa;
+            --t3:      #71717a;
+            --indigo:  #6366f1;
+            --indigo2: #818cf8;
+            --im:      rgba(99,102,241,.12);
+            --green:   #22c55e;
+            --amber:   #f59e0b;
+            --red:     #ef4444;
+            --cyan:    #06b6d4;
+            --r:       8px;
+        }
+        html { font-size: 14px; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--t1); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+        /* Layout */
+        .page { max-width: 1080px; margin: 0 auto; padding: 64px 24px 96px; }
+
+        /* Navbar */
+        .nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 80px; }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand img { width: 26px; height: 26px; }
+        .brand-name { font-size: 15px; font-weight: 700; letter-spacing: -.02em; }
+        .nav-links { display: flex; gap: 6px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: var(--r); text-decoration: none;
+            color: var(--t2); font-size: 13px; font-weight: 500;
+            border: 1px solid transparent;
+            transition: background .15s, color .15s, border-color .15s;
+        }
+        .nav-link:hover { background: var(--s1); color: var(--t1); border-color: var(--bd2); }
+        .nav-link svg { width: 14px; height: 14px; }
+
+        /* Hero */
+        .hero { max-width: 720px; margin-bottom: 64px; }
+        .hero-label {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 5px 12px; border-radius: 999px;
+            background: var(--im); border: 1px solid rgba(99,102,241,.25);
+            color: var(--indigo2); font-size: 11px; font-weight: 700;
+            letter-spacing: .1em; text-transform: uppercase; margin-bottom: 24px;
+        }
+        .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--indigo2); animation: blink 2s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+        h1 {
+            font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 900;
+            letter-spacing: -.04em; line-height: 1.05; margin-bottom: 20px;
+            background: linear-gradient(160deg, #fff 40%, var(--t2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero-sub { font-size: 1.05rem; color: var(--t2); line-height: 1.75; max-width: 640px; }
+
+        /* Portal cards */
+        .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-bottom: 56px; }
+        .portal-card {
+            background: var(--s1); border: 1px solid var(--bd); border-radius: 12px;
+            padding: 24px; text-decoration: none;
+            transition: border-color .2s, background .2s, transform .2s;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .portal-card:hover { border-color: var(--bd2); background: var(--s2); transform: translateY(-2px); }
+        .card-icon-wrap {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .card-icon-wrap svg { width: 20px; height: 20px; }
+        .ci-user   { background: rgba(99,102,241,.12); color: var(--indigo2); }
+        .ci-admin  { background: rgba(167,139,250,.12); color: #c4b5fd; }
+        .ci-supply { background: rgba(34,197,94,.12);   color: #86efac; }
+        .ci-qa     { background: rgba(245,158,11,.12);  color: #fcd34d; }
+        .card-body { flex: 1; }
+        .card-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+        .card-desc { font-size: 12.5px; color: var(--t2); line-height: 1.65; }
+        .card-action {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12.5px; font-weight: 600; color: var(--t3);
+            transition: color .15s;
+        }
+        .portal-card:hover .card-action { color: var(--t1); }
+        .card-action svg { width: 13px; height: 13px; }
+
+        /* Separator */
+        .sep { height: 1px; background: var(--bd); margin-bottom: 32px; }
+
+        /* Feature pills */
+        .features { display: flex; flex-wrap: wrap; gap: 10px; }
+        .feat {
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 14px; border-radius: var(--r);
+            background: var(--s1); border: 1px solid var(--bd);
+            font-size: 12.5px; color: var(--t2);
+        }
+        .feat svg { width: 14px; height: 14px; color: var(--indigo2); }
+
+        @media (max-width: 640px) {
+            .page { padding: 36px 16px 64px; }
+            .nav-links { display: none; }
+            h1 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
-    <main class="wrap">
-        <section class="hero">
-            <div class="brand"><img src="/static/stockpulse-icon.svg" alt="StockPulse icon" /><span>StockPulse</span></div>
-            <div class="eyebrow">StockPulse AI</div>
-            <h1>Choose your access level.</h1>
-            <p class="sub">Public users can register as plain users only. Admin and supplier accounts are provisioned separately, and each portal keeps the experience scoped to that role.</p>
-        </section>
+<div class="page">
+    <nav class="nav">
+        <div class="brand">
+            <img src="/static/stockpulse-icon.svg" alt="StockPulse" />
+            <span class="brand-name">StockPulse</span>
+        </div>
+        <div class="nav-links">
+            <a class="nav-link" href="/dashboard">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>
+                Dashboard
+            </a>
+            <a class="nav-link" href="/qa">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" /></svg>
+                QA Report
+            </a>
+        </div>
+    </nav>
 
-        <section class="grid">
-            <article class="card"><h2>User</h2><p>Register, verify OTP, capture scans, and view your personal history.</p><a class="btn" href="/user">Open user page</a></article>
-            <article class="card"><h2>Admin</h2><p>Sign in to provision accounts, review scans, and manage inventory data.</p><a class="btn" href="/admin">Open admin page</a></article>
-            <article class="card"><h2>Supplier</h2><p>View supplier-only movement, scans, and replenishment signals for your linked products.</p><a class="btn" href="/supplier">Open supplier page</a></article>
-            <article class="card"><h2>QA / Usability</h2><p>Review product health, release risk, and UI usability in one polished QA view.</p><a class="btn secondary" href="/qa">Open QA dashboard</a></article>
-        </section>
-    </main>
+    <header class="hero">
+        <div class="hero-label"><span class="pulse"></span>Inventory Intelligence</div>
+        <h1>Choose your access level.</h1>
+        <p class="hero-sub">StockPulse provides role-scoped portals for managing inventory, batch expiry, and supplier replenishment — all powered by a real FastAPI backend.</p>
+    </header>
+
+    <div class="cards">
+        <!-- User -->
+        <a class="portal-card" href="/user">
+            <div class="card-icon-wrap ci-user">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+            </div>
+            <div class="card-body">
+                <div class="card-name">User</div>
+                <div class="card-desc">Register with OTP verification, capture product scans, and view your personal scan history.</div>
+            </div>
+            <div class="card-action">
+                Open user portal
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </div>
+        </a>
+
+        <!-- Admin -->
+        <a class="portal-card" href="/admin">
+            <div class="card-icon-wrap ci-admin">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            </div>
+            <div class="card-body">
+                <div class="card-name">Admin</div>
+                <div class="card-desc">Provision accounts, review all scan activity, manage inventory, and monitor stock health.</div>
+            </div>
+            <div class="card-action">
+                Open admin portal
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </div>
+        </a>
+
+        <!-- Supplier -->
+        <a class="portal-card" href="/supplier">
+            <div class="card-icon-wrap ci-supply">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 1-.987-1.106v-.958" /></svg>
+            </div>
+            <div class="card-body">
+                <div class="card-name">Supplier</div>
+                <div class="card-desc">View your linked product movement, replenishment signals, and FEFO batch status.</div>
+            </div>
+            <div class="card-action">
+                Open supplier portal
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </div>
+        </a>
+
+        <!-- QA -->
+        <a class="portal-card" href="/qa">
+            <div class="card-icon-wrap ci-qa">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+            </div>
+            <div class="card-body">
+                <div class="card-name">QA Report</div>
+                <div class="card-desc">Inventory quality score, usability checks, expiry risk, and release readiness in one view.</div>
+            </div>
+            <div class="card-action">
+                Open QA dashboard
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </div>
+        </a>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="features">
+        <div class="feat">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+            FEFO batch deduction
+        </div>
+        <div class="feat">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            Redis-cached queries
+        </div>
+        <div class="feat">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>
+            Reorder point engine
+        </div>
+        <div class="feat">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            OTP email verification
+        </div>
+        <div class="feat">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
+            Expiry &amp; low-stock alerts
+        </div>
+        <div class="feat">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0 4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0-5.571 3-5.571-3" /></svg>
+            FastAPI + Docker
+        </div>
+    </div>
+</div>
 </body>
 </html>

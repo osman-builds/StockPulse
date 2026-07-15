@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from email_validator import EmailNotValidError
+from starlette.requests import Request as StarletteRequest
 
 # Ensure project root is on path when tests run from the StockPulse folder.
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +18,19 @@ from app import authenticate_user, create_access_token, create_admin_user, creat
 from db import Base
 from models import Batch, Product, ProductScan, Supplier, User
 from schemas import AdminUserCreate, ScanCreate, UserCreate, UserLogin
+
+
+def _mock_request():
+    """Create a minimal Starlette Request for testing rate-limited route handlers."""
+    scope = {
+        "type": "http",
+        "method": "POST",
+        "path": "/",
+        "query_string": b"",
+        "headers": [],
+        "client": ("127.0.0.1", 12345),
+    }
+    return StarletteRequest(scope=scope)
 
 
 class TestJwtAuth(unittest.TestCase):
@@ -53,7 +67,7 @@ class TestJwtAuth(unittest.TestCase):
         verified_user = verify_user_otp(self.db, "admin@example.com", otp_code, check_deliverability=False)
         self.assertTrue(bool(verified_user.is_verified))
 
-        login_token = login_for_access_token(UserLogin(identifier="admin", password="secret123"), db=self.db)
+        login_token = login_for_access_token(_mock_request(), UserLogin(identifier="admin", password="secret123"), db=self.db)
         self.assertEqual(login_token.token_type, "bearer")
 
         current_user = get_current_user(token=login_token.access_token, db=self.db)

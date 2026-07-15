@@ -1,0 +1,33 @@
+{
+    // Tell VS Code (and all extensions including Pyrefly) which Python interpreter to use.
+    // This points to the new local virtual environment (.venv)
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "python.pythonPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+
+    // Pyrefly extension setting — explicit interpreter path
+    "pyrefly.pythonInterpreter": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+
+    // Pylance / Pyright — suppress missing-import that come from third-party packages
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}\\.venv\\Lib\\site-packages"
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none",
+        "reportMissingModuleSource": "none"
+    },
+
+    // File associations for Jinja2 templates
+    "files.associations": {
+        "*.html": "html"
+    },
+
+    // Suppress JS/CSS lint errors inside Jinja2 template files
+    // (The remaining template syntax is valid when rendered, not when read as raw HTML)
+    "html.validate.scripts": false,
+    "html.validate.styles": false,
+
+    // Editor comfort
+    "editor.formatOnSave": false,
+    "editor.rulers": [88, 120]
+}

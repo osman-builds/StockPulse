@@ -74,6 +74,7 @@ The workflow at [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) is ac
 
 ```bash
 cd "StockPulse"
+cp .env.example .env        # then fill in real secrets
 docker compose up --build
 ```
 

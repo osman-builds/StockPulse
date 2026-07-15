@@ -3,195 +3,341 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>StockPulse QA & Usability</title>
+    <meta name="description" content="StockPulse QA Report — inventory quality score, usability checks, and release readiness." />
+    <title>QA Report — StockPulse</title>
     <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --bg: #07111f;
-            --panel: rgba(15, 23, 42, .84);
-            --card: rgba(17, 24, 39, .92);
-            --border: rgba(148, 163, 184, .16);
-            --text: #e5e7eb;
-            --muted: #94a3b8;
-            --accent: #67e8f9;
-            --good: #22c55e;
-            --warn: #f59e0b;
-            --bad: #ef4444;
-            color-scheme: dark;
+            --bg:#09090b; --s1:#18181b; --s2:#27272a; --s3:#3f3f46;
+            --bd:#27272a; --bd2:#3f3f46;
+            --t1:#fafafa; --t2:#a1a1aa; --t3:#71717a;
+            --ind:#6366f1; --ind2:#818cf8; --im:rgba(99,102,241,.1);
+            --grn:#22c55e; --gmuted:rgba(34,197,94,.1);
+            --amb:#f59e0b; --amuted:rgba(245,158,11,.1);
+            --red:#ef4444; --rmuted:rgba(239,68,68,.1);
+            --r:8px; --rl:12px;
         }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(56, 189, 248, .18), transparent 32%),
-                radial-gradient(circle at 85% 0%, rgba(34, 197, 94, .16), transparent 26%),
-                linear-gradient(180deg, #020617 0%, #0f172a 52%, #111827 100%);
+        html { font-size:14px; }
+        body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--t1); min-height:100vh; -webkit-font-smoothing:antialiased; display:flex; }
+
+        /* Sidebar */
+        .sidebar { width:220px; flex-shrink:0; background:var(--s1); border-right:1px solid var(--bd); display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto; }
+        .sb-brand { display:flex; align-items:center; gap:10px; padding:16px 14px; border-bottom:1px solid var(--bd); }
+        .sb-brand img { width:22px; height:22px; }
+        .sb-brand-name { font-size:14px; font-weight:700; letter-spacing:-.02em; }
+        .sb-section { padding:16px 8px 4px; font-size:10.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--t3); }
+        .sb-nav { padding:4px 8px; display:flex; flex-direction:column; gap:2px; }
+        .sb-link { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:6px; text-decoration:none; color:var(--t2); font-size:13px; font-weight:500; transition:background .15s, color .15s; }
+        .sb-link:hover { background:var(--s2); color:var(--t1); }
+        .sb-link.active { background:var(--amuted); color:#fcd34d; font-weight:600; }
+        .sb-link svg { width:15px; height:15px; flex-shrink:0; }
+        .sb-footer { margin-top:auto; padding:14px 18px; border-top:1px solid var(--bd); font-size:11px; color:var(--t3); line-height:1.6; }
+
+        /* Main */
+        .main { flex:1; min-width:0; display:flex; flex-direction:column; }
+        .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:52px; border-bottom:1px solid var(--bd); flex-shrink:0; gap:12px; flex-wrap:wrap; }
+        .topbar-title { font-size:14px; font-weight:600; }
+        .topbar-actions { display:flex; gap:8px; }
+        .btn-sm { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:var(--r); font-size:12px; font-weight:600; font-family:inherit; border:1px solid var(--bd2); background:var(--s2); color:var(--t1); cursor:pointer; text-decoration:none; transition:background .15s; }
+        .btn-sm:hover { background:var(--s3); }
+        .btn-sm svg { width:13px; height:13px; }
+        .content { flex:1; padding:24px; }
+
+        /* Stats row */
+        .stats { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:12px; margin-bottom:24px; }
+        .stat { background:var(--s1); border:1px solid var(--bd); border-radius:var(--rl); padding:18px; }
+        .stat-label { font-size:10.5px; font-weight:500; color:var(--t3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+        .stat-value { font-size:2rem; font-weight:900; letter-spacing:-.04em; line-height:1; }
+        .stat-note { margin-top:8px; font-size:11.5px; color:var(--t3); line-height:1.5; }
+        .sv-score { color:#86efac; }
+        .sv-ui    { color:var(--ind2); }
+        .sv-prod  { color:var(--t1); }
+        .sv-units { color:#67e8f9; }
+
+        /* Main grid */
+        .qa-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; align-items:start; }
+        .stack { display:grid; gap:16px; }
+
+        /* Card */
+        .card { background:var(--s1); border:1px solid var(--bd); border-radius:var(--rl); overflow:hidden; }
+        .card-head { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--bd); }
+        .card-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
+        .card-title svg { width:14px; height:14px; color:var(--t3); }
+        .card-body { padding:18px; }
+
+        /* Score ring */
+        .score-ring-wrap { display:flex; align-items:center; gap:20px; padding:8px 0 16px; }
+        .score-ring {
+            width:96px; height:96px; border-radius:50%; flex-shrink:0;
+            background: conic-gradient(from 90deg, var(--grn) 0deg, #67e8f9 calc(var(--score, 0) * 3.6deg), var(--s2) 0);
+            display:flex; align-items:center; justify-content:center;
         }
-        .wrap { max-width: 1240px; margin: 0 auto; padding: 30px 18px 60px; }
-        .hero {
-            display: grid;
-            gap: 14px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            background: rgba(15, 23, 42, .58);
-            backdrop-filter: blur(18px);
-            box-shadow: 0 28px 80px rgba(0,0,0,.28);
-            margin-bottom: 18px;
-        }
-        .brand {
-            display: inline-flex; align-items: center; gap: 10px; width: fit-content;
-            padding: 10px 14px; border-radius: 999px; background: rgba(15,23,42,.72); border: 1px solid rgba(148,163,184,.18);
-        }
-        .brand img { width: 30px; height: 30px; }
-        .brand span { font-weight: 800; letter-spacing: .02em; }
-        .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .18em; font-size: 11px; font-weight: 800; }
-        h1 { margin: 0; font-size: clamp(2.2rem, 4vw, 4rem); line-height: 1.02; letter-spacing: -0.04em; }
-        .sub { margin: 0; max-width: 880px; color: #cbd5e1; line-height: 1.7; }
-        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            min-width: 160px; padding: 12px 16px; border-radius: 14px; text-decoration: none; font-weight: 800;
-            color: #04111f; background: linear-gradient(135deg, #67e8f9, #22c55e);
-        }
-        .btn.secondary { color: #cbd5e1; background: transparent; border: 1px solid rgba(147,197,253,.24); }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 18px 0; }
-        .stat {
-            background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 18px;
-            box-shadow: 0 22px 50px rgba(0,0,0,.18);
-        }
-        .stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
-        .stat .value { margin-top: 10px; font-size: 2rem; font-weight: 800; }
-        .stat .note { margin-top: 8px; color: #cbd5e1; font-size: 13px; line-height: 1.5; }
-        .grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: start; }
-        .stack { display: grid; gap: 16px; }
-        .card {
-            background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px;
-            box-shadow: 0 24px 60px rgba(0,0,0,.22);
-        }
-        .card h2 { margin: 0 0 12px; font-size: 1.05rem; letter-spacing: -0.02em; }
-        .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-        .metric {
-            padding: 14px; border-radius: 18px; background: rgba(2, 6, 23, .45); border: 1px solid rgba(148,163,184,.12);
-        }
-        .metric .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
-        .metric .value { margin-top: 8px; font-size: 1.6rem; font-weight: 800; }
-        .metric .detail { margin-top: 6px; color: #cbd5e1; font-size: 13px; line-height: 1.5; }
-        .score {
-            display: grid; gap: 12px; padding: 18px; border-radius: 22px; background: linear-gradient(180deg, rgba(34,197,94,.18), rgba(2,6,23,.08)); border: 1px solid rgba(34,197,94,.22);
-        }
-        .score .ring { width: 108px; height: 108px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(from 180deg, #67e8f9 0deg, #22c55e calc(var(--score) * 3.6deg), rgba(255,255,255,.08) 0); }
-        .score .ring > div { width: 82px; height: 82px; border-radius: 50%; background: #07111f; display: grid; place-items: center; text-align: center; }
-        .score .ring strong { font-size: 1.6rem; }
-        .score .caption { color: #cbd5e1; line-height: 1.6; }
-        .checks { display: grid; gap: 10px; }
-        .check {
-            display: grid; gap: 4px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.12);
-        }
-        .check-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
-        .pill { padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
-        .pass { background: rgba(34,197,94,.14); color: #86efac; }
-        .warn { background: rgba(245, 158, 11, .14); color: #fcd34d; }
-        .fail { background: rgba(239, 68, 68, .14); color: #fca5a5; }
-        .check p { margin: 0; color: #cbd5e1; line-height: 1.55; }
-        .recommendations { display: grid; gap: 10px; }
-        .rec { padding: 14px; border-radius: 16px; background: rgba(2,6,23,.45); border: 1px solid rgba(148,163,184,.12); color: #dbeafe; line-height: 1.55; }
-        .inventory-list { display: grid; gap: 10px; }
-        .item {
-            padding: 14px; border-radius: 16px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.12);
-        }
-        .item strong { display: block; margin-bottom: 6px; }
-        .item .meta { color: #9ca3af; font-size: 13px; line-height: 1.5; }
-        @media (max-width: 960px) {
-            .grid { grid-template-columns: 1fr; }
-            .metric-grid { grid-template-columns: 1fr; }
-        }
+        .score-ring-inner { width:72px; height:72px; border-radius:50%; background:var(--s1); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .score-num { font-size:22px; font-weight:900; color:var(--t1); letter-spacing:-.04em; }
+        .score-sub { font-size:10px; color:var(--t3); font-weight:500; }
+        .score-caption { font-size:12.5px; color:var(--t2); line-height:1.65; }
+
+        /* Metric grid */
+        .metric-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+        .metric { background:var(--s2); border:1px solid var(--bd2); border-radius:var(--r); padding:12px; }
+        .metric-label { font-size:10.5px; font-weight:500; color:var(--t3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+        .metric-value { font-size:1.6rem; font-weight:900; letter-spacing:-.04em; color:var(--t1); }
+        .metric-detail { margin-top:6px; font-size:11.5px; color:var(--t3); line-height:1.5; }
+        .mv-green { color:#86efac; }
+        .mv-amber { color:#fcd34d; }
+        .mv-red   { color:#fca5a5; }
+
+        /* Check list */
+        .check-list { display:grid; gap:8px; }
+        .check-item { background:var(--s2); border:1px solid var(--bd2); border-radius:var(--r); padding:12px 14px; }
+        .check-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; }
+        .check-name { font-size:13px; font-weight:600; }
+        .check-detail { font-size:12px; color:var(--t3); line-height:1.55; }
+        .cpill { padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+        .cpill-pass { background:var(--gmuted); color:#86efac; border:1px solid rgba(34,197,94,.2); }
+        .cpill-warn { background:var(--amuted); color:#fcd34d; border:1px solid rgba(245,158,11,.2); }
+        .cpill-fail { background:var(--rmuted); color:#fca5a5; border:1px solid rgba(239,68,68,.2); }
+
+        /* Recommendations */
+        .recs { display:grid; gap:8px; }
+        .rec { display:flex; gap:10px; padding:12px 14px; border-radius:var(--r); background:var(--s2); border:1px solid var(--bd2); font-size:12.5px; color:var(--t2); line-height:1.55; }
+        .rec-icon { flex-shrink:0; margin-top:2px; color:var(--amb); }
+        .rec-icon svg { width:14px; height:14px; }
+
+        /* Sample items */
+        .sample-item { padding:12px 14px; border-radius:var(--r); background:var(--s2); border:1px solid var(--bd2); margin-bottom:8px; }
+        .sample-item:last-child { margin-bottom:0; }
+        .sample-sku { font-family:monospace; font-size:11px; color:var(--ind2); font-weight:700; }
+        .sample-name { font-size:13px; font-weight:600; margin-bottom:4px; }
+        .sample-meta { font-size:11.5px; color:var(--t3); }
+
+        @media(max-width:960px){ .qa-grid{ grid-template-columns:1fr; } .metric-grid{ grid-template-columns:1fr; } }
+        @media(max-width:768px){ .sidebar{display:none;} .content{padding:14px;} }
     </style>
 </head>
 <body>
-    <main class="wrap">
-        <section class="hero">
-            <div class="brand"><img src="/static/stockpulse-icon.svg" alt="StockPulse icon" /><span>StockPulse</span></div>
-            <div class="eyebrow">QA and Usability</div>
-            <h1>Quality checks for product health, usability, and release readiness.</h1>
-            <p class="sub">This view acts like a QA engineer’s review board: it summarizes stock quality signals, shows a usability score for the current UI, and points out what needs attention before release or rollout.</p>
-            <div class="hero-actions">
-                <a class="btn" href="/dashboard">Open inventory dashboard</a>
-                <a class="btn secondary" href="/">Back to landing</a>
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sb-brand">
+        <img src="/static/stockpulse-icon.svg" alt="StockPulse" />
+        <span class="sb-brand-name">StockPulse</span>
+    </div>
+    <div class="sb-section">Navigation</div>
+    <nav class="sb-nav">
+        <a href="/" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+            Home
+        </a>
+        <a href="/dashboard" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+            Inventory
+        </a>
+        <a href="/admin" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            Admin
+        </a>
+        <a href="/supplier" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 1-.987-1.106v-.958" /></svg>
+            Supplier
+        </a>
+        <a href="/qa" class="sb-link active">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+            QA Report
+        </a>
+    </nav>
+    <div class="sb-footer">
+        Quality checks for product health, usability, and release readiness.
+    </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+    <div class="topbar">
+        <span class="topbar-title">QA &amp; Usability Report</span>
+        <div class="topbar-actions">
+            <a class="btn-sm" href="/dashboard">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+                Inventory
+            </a>
+            <a class="btn-sm" href="/">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                Home
+            </a>
+        </div>
+    </div>
+    <div class="content">
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Quality score</div>
+                <div class="stat-value sv-score">{{ quality_score }}</div>
+                <div class="stat-note">Inventory health across stock, expiry, and depletion signals.</div>
             </div>
-        </section>
+            <div class="stat">
+                <div class="stat-label">Usability score</div>
+                <div class="stat-value sv-ui">{{ usability_score }}</div>
+                <div class="stat-note">Clarity of actions, feedback loops, and responsive layout.</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Products tracked</div>
+                <div class="stat-value sv-prod">{{ total_products }}</div>
+                <div class="stat-note">Products in the current release surface.</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Units remaining</div>
+                <div class="stat-value sv-units">{{ total_units }}</div>
+                <div class="stat-note">Remaining inventory available to serve users.</div>
+            </div>
+        </div>
 
-        <section class="stats">
-            <div class="stat"><div class="label">Quality score</div><div class="value">{{ quality_score }}</div><div class="note">Inventory health across stock, expiry, and depletion signals.</div></div>
-            <div class="stat"><div class="label">Usability score</div><div class="value">{{ usability_score }}</div><div class="note">Clarity of actions, feedback loops, and responsive layout.</div></div>
-            <div class="stat"><div class="label">Products tracked</div><div class="value">{{ total_products }}</div><div class="note">How many products are in the current release surface.</div></div>
-            <div class="stat"><div class="label">Units remaining</div><div class="value">{{ total_units }}</div><div class="note">Remaining inventory available to serve users.</div></div>
-        </section>
-
-        <section class="grid">
+        <div class="qa-grid">
+            <!-- Left column -->
             <div class="stack">
+                <!-- Release health -->
                 <div class="card">
-                    <h2>Release health</h2>
-                    <div class="metric-grid">
-                        <div class="metric"><div class="label">Healthy products</div><div class="value">{{ healthy_products }}</div><div class="detail">Items above safety stock and not nearing expiry.</div></div>
-                        <div class="metric"><div class="label">Low stock</div><div class="value">{{ low_stock_products }}</div><div class="detail">Products that need replenishment attention.</div></div>
-                        <div class="metric"><div class="label">Out of stock</div><div class="value">{{ out_of_stock_products }}</div><div class="detail">Items blocked from immediate fulfillment.</div></div>
-                        <div class="metric"><div class="label">Expiring soon</div><div class="value">{{ expiring_products }}</div><div class="detail">Batches that should be rotated first.</div></div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h2>Usability checks</h2>
-                    <div class="checks">
-                        {% for check in checks %}
-                        <div class="check">
-                            <div class="check-head">
-                                <strong>{{ check.label }}</strong>
-                                <span class="pill pass">{{ check.value }}</span>
-                            </div>
-                            <p>{{ check.detail }}</p>
+                    <div class="card-head">
+                        <div class="card-title">
+                            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
+                            Release health
                         </div>
-                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-grid">
+                            <div class="metric">
+                                <div class="metric-label">Healthy</div>
+                                <div class="metric-value mv-green">{{ healthy_products }}</div>
+                                <div class="metric-detail">Above safety stock, not nearing expiry.</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Low stock</div>
+                                <div class="metric-value mv-amber">{{ low_stock_products }}</div>
+                                <div class="metric-detail">Needs replenishment attention.</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Out of stock</div>
+                                <div class="metric-value mv-red">{{ out_of_stock_products }}</div>
+                                <div class="metric-detail">Blocked from immediate fulfillment.</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Expiring soon</div>
+                                <div class="metric-value mv-amber">{{ expiring_products }}</div>
+                                <div class="metric-detail">Batches that should be rotated first.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usability checks -->
+                <div class="card">
+                    <div class="card-head">
+                        <div class="card-title">
+                            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" /></svg>
+                            Usability checks
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="check-list">
+                            {% for check in checks %}
+                            <div class="check-item">
+                                <div class="check-head">
+                                    <span class="check-name">{{ check.label }}</span>
+                                    <span class="cpill cpill-pass">{{ check.value }}</span>
+                                </div>
+                                <div class="check-detail">{{ check.detail }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Right column -->
             <div class="stack">
-                <div class="card score" style="--score: {{ quality_score }};">
-                    <h2>Overall QA score</h2>
-                    <div class="ring"><div><strong>{{ quality_score }}</strong></div></div>
-                    <div class="caption">Average safety stock: {{ safety_stock_average }}. This score is a practical snapshot of inventory health, release risk, and how cleanly the UI surfaces the main actions.</div>
-                </div>
-
+                <!-- Overall QA score ring -->
                 <div class="card">
-                    <h2>Release notes</h2>
-                    <div class="recommendations">
-                        {% for recommendation in recommendations %}
-                        <div class="rec">{{ recommendation }}</div>
-                        {% endfor %}
+                    <div class="card-head">
+                        <div class="card-title">
+                            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+                            Overall QA score
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="score-ring-wrap">
+                            <div class="score-ring" id="score-ring" data-score="{{ quality_score }}">
+                                <div class="score-ring-inner">
+                                    <span class="score-num">{{ quality_score }}</span>
+                                    <span class="score-sub">/ 100</span>
+                                </div>
+                            </div>
+                            <div class="score-caption">
+                                Average safety stock: <strong>{{ safety_stock_average }}</strong>.<br>
+                                This score is a practical snapshot of inventory health, release risk, and how cleanly the UI surfaces the main actions.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Release notes -->
                 <div class="card">
-                    <h2>Sample inventory view</h2>
-                    <div class="inventory-list">
+                    <div class="card-head">
+                        <div class="card-title">
+                            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" /></svg>
+                            Release notes
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="recs">
+                            {% for recommendation in recommendations %}
+                            <div class="rec">
+                                <div class="rec-icon">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                                </div>
+                                {{ recommendation }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample inventory view -->
+                <div class="card">
+                    <div class="card-head">
+                        <div class="card-title">
+                            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+                            Sample inventory
+                        </div>
+                        <a href="/dashboard" style="font-size:12px;color:var(--ind2);text-decoration:none;">View all →</a>
+                    </div>
+                    <div class="card-body">
                         {% for item in items[:3] %}
-                        <div class="item">
-                            <strong>{{ item.sku }} - {{ item.name }}</strong>
-                            <div class="meta">Remaining: {{ item.total_remaining }} | Safety stock: {{ item.safety_stock }} | Status: {{ item.status }}</div>
+                        <div class="sample-item">
+                            <div class="sample-name">
+                                <span class="sample-sku">{{ item.sku }}</span>
+                                &nbsp;{{ item.name }}
+                            </div>
+                            <div class="sample-meta">Remaining: {{ item.total_remaining }} &nbsp;·&nbsp; Safety: {{ item.safety_stock }} &nbsp;·&nbsp; {{ item.status | replace('_', ' ') }}</div>
                         </div>
                         {% else %}
-                        <div class="item">
-                            <strong>No products loaded</strong>
-                            <div class="meta">Add suppliers, products, and batches to populate quality metrics.</div>
+                        <div class="sample-item">
+                            <div class="sample-name">No products loaded</div>
+                            <div class="sample-meta">Add suppliers, products, and batches to populate quality metrics.</div>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    var ring = document.getElementById('score-ring');
+    if (ring) ring.style.setProperty('--score', ring.dataset.score || '0');
+})();
+</script>
 </body>
 </html>

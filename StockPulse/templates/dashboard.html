@@ -3,88 +3,218 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>StockPulse Dashboard</title>
+    <meta name="description" content="StockPulse inventory dashboard — FEFO batch tracking, expiry risk, and stock health." />
+    <title>StockPulse Dashboard — Inventory</title>
     <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
-        :root { color-scheme: light; --panel: #111827; --muted: #94a3b8; --accent: #38bdf8; }
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: linear-gradient(180deg, #020617 0%, #0f172a 55%, #111827 100%); color: #e5e7eb; }
-        .shell { max-width: 1200px; margin: 0 auto; padding: 32px 20px 56px; }
-        .hero { display: grid; gap: 16px; margin-bottom: 24px; }
-        .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: 0.16em; font-size: 12px; font-weight: 700; }
-        h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1.05; }
-        .sub { max-width: 780px; color: var(--muted); font-size: 1rem; line-height: 1.6; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 24px 0; }
-        .stat { background: rgba(31, 41, 55, 0.88); border: 1px solid rgba(148, 163, 184, 0.14); border-radius: 18px; padding: 18px; }
-        .stat-label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
-        .stat-value { font-size: 2rem; font-weight: 800; }
-        .panel { background: rgba(17, 24, 39, 0.92); border: 1px solid rgba(148, 163, 184, 0.14); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28); }
-        .panel-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid rgba(148, 163, 184, 0.14); }
-        .panel-head h2 { margin: 0; font-size: 1.1rem; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(148, 163, 184, 0.1); }
-        th { color: var(--muted); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        .status { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
-        .status-healthy { background: rgba(16, 185, 129, 0.14); color: #6ee7b7; }
-        .status-low_stock, .status-expiring_soon { background: rgba(245, 158, 11, 0.14); color: #fcd34d; }
-        .status-out_of_stock, .status-expired, .status-depleted { background: rgba(239, 68, 68, 0.14); color: #fca5a5; }
-        .empty { text-align: center; color: var(--muted); padding: 36px 16px; }
-        .footer { margin-top: 18px; color: var(--muted); font-size: 13px; }
-        @media (max-width: 720px) { .panel-head { flex-direction: column; align-items: flex-start; gap: 8px; } th:nth-child(3), td:nth-child(3), th:nth-child(6), td:nth-child(6), th:nth-child(7), td:nth-child(7) { display: none; } }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:#09090b; --s1:#18181b; --s2:#27272a; --s3:#3f3f46;
+            --bd:#27272a; --bd2:#3f3f46;
+            --t1:#fafafa; --t2:#a1a1aa; --t3:#71717a;
+            --ind:#6366f1; --ind2:#818cf8; --im:rgba(99,102,241,.1);
+            --grn:#22c55e; --gmuted:rgba(34,197,94,.1);
+            --amb:#f59e0b; --amuted:rgba(245,158,11,.1);
+            --red:#ef4444; --rmuted:rgba(239,68,68,.1);
+            --r:8px; --rl:12px;
+        }
+        html { font-size:14px; }
+        body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--t1); min-height:100vh; -webkit-font-smoothing:antialiased; display:flex; }
+
+        /* Sidebar */
+        .sidebar { width:220px; flex-shrink:0; background:var(--s1); border-right:1px solid var(--bd); display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto; }
+        .sb-brand { display:flex; align-items:center; gap:10px; padding:16px 14px; border-bottom:1px solid var(--bd); }
+        .sb-brand img { width:22px; height:22px; }
+        .sb-brand-name { font-size:14px; font-weight:700; letter-spacing:-.02em; }
+        .sb-section { padding:16px 8px 4px; font-size:10.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--t3); }
+        .sb-nav { padding:4px 8px; display:flex; flex-direction:column; gap:2px; }
+        .sb-link { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:6px; text-decoration:none; color:var(--t2); font-size:13px; font-weight:500; transition:background .15s, color .15s; }
+        .sb-link:hover { background:var(--s2); color:var(--t1); }
+        .sb-link.active { background:var(--im); color:var(--ind2); font-weight:600; }
+        .sb-link svg { width:15px; height:15px; flex-shrink:0; }
+        .sb-footer { margin-top:auto; padding:12px 10px; border-top:1px solid var(--bd); font-size:11px; color:var(--t3); padding-left:18px; line-height:1.6; }
+
+        /* Main */
+        .main { flex:1; min-width:0; display:flex; flex-direction:column; }
+        .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:52px; border-bottom:1px solid var(--bd); flex-shrink:0; }
+        .topbar-title { font-size:14px; font-weight:600; }
+        .live-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--gmuted); border:1px solid rgba(34,197,94,.2); font-size:11.5px; color:#86efac; }
+        .live-dot { width:6px; height:6px; border-radius:50%; background:var(--grn); box-shadow:0 0 8px var(--grn); animation:blink 2s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+        .content { flex:1; padding:24px; }
+
+        /* Stats */
+        .stats { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px; margin-bottom:24px; }
+        .stat { background:var(--s1); border:1px solid var(--bd); border-radius:var(--rl); padding:18px 20px; position:relative; overflow:hidden; }
+        .stat::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; border-radius:1px; }
+        .st-all::after  { background:linear-gradient(90deg,var(--ind),var(--ind2)); }
+        .st-unit::after { background:linear-gradient(90deg,#06b6d4,var(--ind2)); }
+        .st-low::after  { background:linear-gradient(90deg,var(--amb),#f97316); }
+        .st-out::after  { background:linear-gradient(90deg,var(--red),#dc2626); }
+        .stat-label { font-size:11px; font-weight:500; color:var(--t3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+        .stat-value { font-size:2rem; font-weight:900; letter-spacing:-.04em; line-height:1; }
+        .sv-default { color:var(--t1); }
+        .sv-cyan  { color:#67e8f9; }
+        .sv-amber { color:#fcd34d; }
+        .sv-red   { color:#fca5a5; }
+
+        /* Panel */
+        .panel { background:var(--s1); border:1px solid var(--bd); border-radius:var(--rl); overflow:hidden; }
+        .panel-head { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--bd); flex-wrap:wrap; gap:10px; }
+        .panel-title { font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:8px; }
+        .panel-title svg { width:15px; height:15px; color:var(--t3); }
+        .panel-meta { font-size:12px; color:var(--t3); padding:4px 10px; border-radius:999px; background:var(--s2); border:1px solid var(--bd2); }
+        .tbl-wrap { overflow-x:auto; }
+
+        /* Table */
+        table { width:100%; border-collapse:collapse; }
+        thead tr { background:rgba(255,255,255,.015); }
+        th { padding:10px 16px; text-align:left; font-size:10.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--t3); border-bottom:1px solid var(--bd); white-space:nowrap; }
+        td { padding:12px 16px; font-size:13px; border-bottom:1px solid var(--bd); color:var(--t2); }
+        tbody tr:last-child td { border-bottom:none; }
+        tbody tr:hover td { background:rgba(255,255,255,.02); }
+        .td-sku { font-family:'SF Mono','Fira Code',monospace; font-size:11.5px; color:var(--ind2); font-weight:700; }
+        .td-name { font-weight:600; color:var(--t1); }
+        .td-num  { font-weight:700; color:var(--t1); font-variant-numeric:tabular-nums; }
+        .td-dim  { color:var(--t3); }
+
+        /* Badges */
+        .badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; }
+        .badge::before { content:''; width:5px; height:5px; border-radius:50%; }
+        .badge-healthy { background:var(--gmuted); color:#86efac; border:1px solid rgba(34,197,94,.2); }
+        .badge-healthy::before { background:var(--grn); }
+        .badge-low_stock,.badge-expiring_soon { background:var(--amuted); color:#fcd34d; border:1px solid rgba(245,158,11,.2); }
+        .badge-low_stock::before,.badge-expiring_soon::before { background:var(--amb); }
+        .badge-out_of_stock,.badge-expired,.badge-depleted { background:var(--rmuted); color:#fca5a5; border:1px solid rgba(239,68,68,.2); }
+        .badge-out_of_stock::before,.badge-expired::before,.badge-depleted::before { background:var(--red); }
+        .empty-row { text-align:center; color:var(--t3); padding:48px 24px; font-size:13px; }
+
+        /* Footer bar */
+        .panel-foot { display:flex; align-items:center; justify-content:space-between; padding:11px 20px; border-top:1px solid var(--bd); font-size:12px; color:var(--t3); flex-wrap:wrap; gap:6px; }
+        .foot-link { color:var(--ind2); text-decoration:none; }
+        .foot-link:hover { text-decoration:underline; }
+
+        @media(max-width:768px){
+            .sidebar { display:none; }
+            .content { padding:14px; }
+            th:nth-child(n+5), td:nth-child(n+5) { display:none; }
+        }
     </style>
 </head>
 <body>
-    <main class="shell">
-        <section class="hero">
-            <div class="eyebrow">StockPulse AI</div>
-            <h1>Inventory dashboard for FEFO stock and replenishment.</h1>
-            <p class="sub">Track products, remaining units, batch expiry risk, and low-stock signals from the same Python prototype that powers the API.</p>
-        </section>
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sb-brand">
+        <img src="/static/stockpulse-icon.svg" alt="StockPulse" />
+        <span class="sb-brand-name">StockPulse</span>
+    </div>
+    <div class="sb-section">Navigation</div>
+    <nav class="sb-nav">
+        <a href="/" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+            Home
+        </a>
+        <a href="/dashboard" class="sb-link active">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+            Inventory
+        </a>
+        <a href="/admin" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            Admin
+        </a>
+        <a href="/supplier" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 1-.987-1.106v-.958" /></svg>
+            Supplier
+        </a>
+        <a href="/qa" class="sb-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+            QA Report
+        </a>
+    </nav>
+    <div class="sb-footer">
+        Programmatic access via<br>
+        <a href="/docs" style="color:var(--ind2);">/docs</a> &nbsp;·&nbsp;
+        <a href="/inventory" style="color:var(--ind2);">/inventory</a>
+    </div>
+</aside>
 
-        <section class="stats">
-            <div class="stat"><div class="stat-label">Products tracked</div><div class="stat-value">{{ total_products }}</div></div>
-            <div class="stat"><div class="stat-label">Units remaining</div><div class="stat-value">{{ total_units }}</div></div>
-            <div class="stat"><div class="stat-label">Low stock</div><div class="stat-value">{{ low_stock }}</div></div>
-            <div class="stat"><div class="stat-label">Out of stock</div><div class="stat-value">{{ out_of_stock }}</div></div>
-        </section>
-
-        <section class="panel">
-            <div class="panel-head">
-                <h2>Current inventory</h2>
-                <div class="footer">Use the API at /inventory and /products/&lt;id&gt;/batches for programmatic access.</div>
+<!-- Main -->
+<div class="main">
+    <div class="topbar">
+        <span class="topbar-title">StockPulse Dashboard</span>
+        <div class="live-badge"><span class="live-dot"></span>Live</div>
+    </div>
+    <div class="content">
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat st-all">
+                <div class="stat-label">Products tracked</div>
+                <div class="stat-value sv-default">{{ total_products }}</div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>SKU</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Remaining</th>
-                        <th>Safety stock</th>
-                        <th>Batches</th>
-                        <th>Next expiry</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                    <tr>
-                        <td>{{ item.sku }}</td>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.category or '-' }}</td>
-                        <td>{{ item.total_remaining }}</td>
-                        <td>{{ item.safety_stock }}</td>
-                        <td>{{ item.batch_count }}</td>
-                        <td>{{ item.next_expiry or '-' }}</td>
-                        <td><span class="status status-{{ item.status }}">{{ item.status }}</span></td>
-                    </tr>
-                    {% else %}
-                    <tr><td colspan="8" class="empty">No products yet. Create suppliers, products, and batches to populate the dashboard.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-    </main>
+            <div class="stat st-unit">
+                <div class="stat-label">Units remaining</div>
+                <div class="stat-value sv-cyan">{{ total_units }}</div>
+            </div>
+            <div class="stat st-low">
+                <div class="stat-label">Low stock</div>
+                <div class="stat-value sv-amber">{{ low_stock }}</div>
+            </div>
+            <div class="stat st-out">
+                <div class="stat-label">Out of stock</div>
+                <div class="stat-value sv-red">{{ out_of_stock }}</div>
+            </div>
+        </div>
+
+        <!-- Inventory table -->
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-title">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+                    All products
+                </div>
+                <span class="panel-meta">{{ items | length }} product{{ 's' if items | length != 1 else '' }}</span>
+            </div>
+            <div class="tbl-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Remaining</th>
+                            <th>Safety stock</th>
+                            <th>Batches</th>
+                            <th>Next expiry</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td><span class="td-sku">{{ item.sku }}</span></td>
+                            <td><span class="td-name">{{ item.name }}</span></td>
+                            <td><span class="td-dim">{{ item.category or '—' }}</span></td>
+                            <td><span class="td-num">{{ item.total_remaining }}</span></td>
+                            <td><span class="td-dim">{{ item.safety_stock }}</span></td>
+                            <td><span class="td-dim">{{ item.batch_count }}</span></td>
+                            <td><span class="td-dim">{{ item.next_expiry or '—' }}</span></td>
+                            <td><span class="badge badge-{{ item.status }} status-{{ item.status }}">{{ item.status | replace('_',' ') }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="8" class="empty-row">No products yet — create suppliers, products, and batches to populate the dashboard.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-foot">
+                <span>FEFO · Redis-cached · Real-time batch tracking</span>
+                <span><a class="foot-link" href="/docs">API docs</a> &nbsp;·&nbsp; <a class="foot-link" href="/inventory">JSON endpoint</a></span>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
