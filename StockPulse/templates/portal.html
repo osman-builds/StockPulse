@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -268,64 +269,8 @@
         <p style="font-size:12.5px;color:var(--t3);margin-bottom:20px;">{{ page_subtitle }}</p>
 
         <div class="panel-grid">
-            <!-- Getting started wizard -->
-            <div class="card span-full">
-                <div class="card-head">
-                    <div class="card-title">
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
-                        Getting started
-                    </div>
-                    <span class="card-note">Only the current step is shown. Skip to login if you already have an account.</span>
-                </div>
-                <div class="card-body">
-                    <div class="step-tabs" role="tablist">
-                        <button class="step-tab active" data-step="register" role="tab">Register</button>
-                        <button class="step-tab" data-step="verify" role="tab">Verify OTP</button>
-                        <button class="step-tab" data-step="login" role="tab">Sign in</button>
-                        <button class="step-tab" data-step="dashboard" role="tab">My account</button>
-                    </div>
-
-                    <!-- Step: Register -->
-                    <div class="step-panel active" data-step="register">
-                        <div class="fg"><label class="fl">Username</label><input class="fi" id="reg_username" autocomplete="username" placeholder="e.g. john_doe" required></div>
-                        <div class="fg"><label class="fl">Email address</label><input class="fi" id="reg_email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
-                        <div class="fg"><label class="fl">Password <span style="color:var(--t3);font-weight:400">(min 8 chars)</span></label><input class="fi" id="reg_password" type="password" minlength="8" autocomplete="new-password" required></div>
-                        <div class="fg"><button class="btn btn-primary btn-full" id="reg-btn">
-                            Create account &amp; send OTP
-                            <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
-                        </button></div>
-                        <button class="btn btn-ghost btn-full" id="go-to-login" type="button" style="font-size:12.5px">I already have an account</button>
-                    </div>
-
-                    <!-- Step: Verify OTP -->
-                    <div class="step-panel" data-step="verify">
-                        <div class="fg"><label class="fl">Email address</label><input class="fi" id="otp_email" type="email" autocomplete="email" required></div>
-                        <div class="fg"><label class="fl">6-digit OTP code</label><input class="fi" id="otp_code" inputmode="numeric" maxlength="6" placeholder="000000" required></div>
-                        <button class="btn btn-primary btn-full" id="otp-btn">
-                            Verify &amp; sign in
-                            <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                        </button>
-                    </div>
-
-                    <!-- Step: Login -->
-                    <div class="step-panel" data-step="login">
-                        <div class="fg"><label class="fl">Email or username</label><input class="fi" id="login_identifier" autocomplete="username" required></div>
-                        <div class="fg"><label class="fl">Password</label><input class="fi" id="login_password" type="password" autocomplete="current-password" required></div>
-                        <button class="btn btn-primary btn-full" id="login-btn">
-                            Sign in
-                            <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
-                        </button>
-                    </div>
-
-                    <!-- Step: Dashboard -->
-                    <div class="step-panel" data-step="dashboard">
-                        <div class="info-box code" id="profile">Sign in to view your account details.</div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Scan product -->
-            <div class="card" id="scan-card" style="display:none">
+            <div class="card" id="scan-card">
                 <div class="card-head">
                     <div class="card-title">
                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" /><path d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 17.25h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375M13.5 14.625h.75M16.5 14.625h.75M16.5 19.125h.75M13.5 19.125h3.375" /></svg>
@@ -333,14 +278,25 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="fg">
+                        <label class="fl">Camera Scanner</label>
+                        <div id="interactive-scanner" style="display:none; border:1px solid var(--bd); border-radius:var(--r); overflow:hidden; margin-bottom:14px; background:#000;">
+                            <div id="reader" style="width: 100%;"></div>
+                        </div>
+                        <button type="button" class="btn btn-ghost btn-full" id="toggle-camera-btn" style="margin-bottom:14px;">
+                            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>
+                            <span>Start Camera Scan</span>
+                        </button>
+                    </div>
                     <div class="fg"><label class="fl">Barcode or SKU</label><input class="fi" id="scan_code" placeholder="Type or scan a code" required></div>
+                    <div id="preview-container" style="display:none; margin-bottom:14px;"></div>
                     <div class="fg"><label class="fl">Quantity</label><input class="fi" id="scan_qty" type="number" min="1" value="1" required></div>
                     <button class="btn btn-primary btn-full" id="scan-btn">Capture scan</button>
                 </div>
             </div>
 
             <!-- Recent scans -->
-            <div class="card" id="history-card" style="display:none">
+            <div class="card" id="history-card">
                 <div class="card-head">
                     <div class="card-title">
                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
@@ -348,7 +304,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div id="scan-history"><div class="info-box">No scans captured yet.</div></div>
+                    <div id="scan-history"><div class="info-box">Loading scan history...</div></div>
                 </div>
             </div>
         </div>
@@ -359,24 +315,6 @@
         <p style="font-size:12.5px;color:var(--t3);margin-bottom:20px;">{{ page_subtitle }}</p>
 
         <div class="panel-grid">
-
-            <!-- Sign in -->
-            <div class="card">
-                <div class="card-head">
-                    <div class="card-title">
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
-                        Sign in
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="fg"><label class="fl">Email or username</label><input class="fi" id="login_identifier" autocomplete="username" required></div>
-                    <div class="fg"><label class="fl">Password</label><input class="fi" id="login_password" type="password" autocomplete="current-password" required></div>
-                    <button class="btn btn-primary btn-full" id="login-btn">
-                        Sign in
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
-                    </button>
-                </div>
-            </div>
 
             <!-- Provision account -->
             <div class="card">
@@ -417,7 +355,7 @@
                     <a href="/dashboard" style="font-size:12px;color:var(--ind2);text-decoration:none;">Full dashboard →</a>
                 </div>
                 <div class="card-body">
-                    <div id="inventory"><div class="info-box">Sign in as admin to view inventory.</div></div>
+                    <div id="inventory"><div class="info-box">Loading inventory...</div></div>
                 </div>
             </div>
 
@@ -430,7 +368,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div id="admin-users"><div class="info-box">Sign in to load user list.</div></div>
+                    <div id="admin-users"><div class="info-box">Loading users...</div></div>
                 </div>
             </div>
 
@@ -442,7 +380,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div id="scan-history"><div class="info-box">Sign in to load scan history.</div></div>
+                    <div id="scan-history"><div class="info-box">Loading scan history...</div></div>
                 </div>
             </div>
 
@@ -457,7 +395,6 @@ const TK = "stockpulse_token";
 
 const tok = () => localStorage.getItem(TK) || "";
 const authH = () => tok() ? { Authorization: `Bearer ${tok()}` } : {};
-const saveTok = t => { localStorage.setItem(TK, t); refresh(); };
 const esc = v => String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 
 async function api(url, opts = {}) {
@@ -467,93 +404,143 @@ async function api(url, opts = {}) {
     return d;
 }
 
-/* ── Element refs (always present) ── */
+// Global redirect if not authenticated
+if (!tok()) {
+    window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+}
+
+/* ── Element refs ── */
 const sessionDot  = document.getElementById("session-dot");
 const sessionText = document.getElementById("session-text");
 const sbUsername  = document.getElementById("sb-username");
 const sbRole      = document.getElementById("sb-role");
 const sbLogout    = document.getElementById("sb-logout");
 
-/* ── Step wizard (user portal only) ── */
-if (PAGE_ROLE === "user") {
-    const tabs   = Array.from(document.querySelectorAll(".step-tab"));
-    const panels = Array.from(document.querySelectorAll(".step-panel"));
+/* ── Product preview and Camera scanner ── */
+let html5QrcodeScanner = null;
+const toggleCameraBtn = document.getElementById("toggle-camera-btn");
+const scannerDiv = document.getElementById("interactive-scanner");
+const previewContainer = document.getElementById("preview-container");
+const scanCodeInput = document.getElementById("scan_code");
 
-    function showStep(step) {
-        tabs.forEach(t => t.classList.toggle("active", t.dataset.step === step));
-        panels.forEach(p => p.classList.toggle("active", p.dataset.step === step));
-        const scanCard    = document.getElementById("scan-card");
-        const historyCard = document.getElementById("history-card");
-        if (scanCard)    scanCard.style.display    = step === "dashboard" ? "block" : "none";
-        if (historyCard) historyCard.style.display = step === "dashboard" ? "block" : "none";
+async function triggerPreview(code) {
+    if (!previewContainer) return;
+    if (!code.trim()) {
+        previewContainer.style.display = "none";
+        previewContainer.innerHTML = "";
+        return;
     }
+    try {
+        const r = await api(`/scans/preview?scan_code=${encodeURIComponent(code)}`, {
+            headers: authH()
+        });
+        
+        previewContainer.style.display = "block";
+        previewContainer.innerHTML = `
+            <div style="background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.25); border-radius: var(--r); padding: 12px; margin-top: 14px; animation: panelFade 0.2s forwards;">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--ind2); margin-bottom: 8px; letter-spacing: 0.04em;">Product Resolved</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--t1);">${esc(r.name)}</div>
+                        <div style="font-size: 11.5px; font-family: monospace; color: var(--ind2); font-weight: 600; margin-top: 2px;">SKU: ${esc(r.sku)}</div>
+                    </div>
+                    <span class="badge badge-${esc(r.inventory_status_snapshot)}">${esc(r.inventory_status_snapshot).replaceAll('_',' ')}</span>
+                </div>
+                <div style="display: flex; gap: 16px; font-size: 12.5px; border-top: 1px solid var(--bd); padding-top: 8px;">
+                    <div><span style="color: var(--t3)">Stock:</span> <strong style="color: var(--t1)">${esc(r.quantity_remaining_snapshot)}</strong></div>
+                    <div><span style="color: var(--t3)">Safety:</span> <strong style="color: var(--t1)">${esc(r.safety_stock)}</strong></div>
+                    <div><span style="color: var(--t3)">Category:</span> <strong style="color: var(--t1)">${esc(r.category || 'None')}</strong></div>
+                </div>
+            </div>
+        `;
+    } catch (e) {
+        previewContainer.style.display = "block";
+        previewContainer.innerHTML = `
+            <div style="background: var(--rmuted); border: 1px solid rgba(239,68,68,0.25); border-radius: var(--r); padding: 10px 12px; margin-top: 14px; color: #fca5a5; font-size: 12.5px; animation: panelFade 0.2s forwards;">
+                ⚠️ ${esc(e.message)}
+            </div>
+        `;
+    }
+}
 
-    tabs.forEach(t => t.addEventListener("click", () => showStep(t.dataset.step)));
+function stopScanner() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+            html5QrcodeScanner = null;
+            if (scannerDiv) scannerDiv.style.display = "none";
+            if (toggleCameraBtn) {
+                toggleCameraBtn.querySelector("span").textContent = "Start Camera Scan";
+                toggleCameraBtn.classList.remove("btn-primary");
+                toggleCameraBtn.classList.add("btn-ghost");
+            }
+        }).catch(err => console.error(err));
+    }
+}
 
-    /* initial step */
-    showStep(tok() ? "dashboard" : "register");
-
-    /* go to login shortcut */
-    document.getElementById("go-to-login")?.addEventListener("click", () => showStep("login"));
-
-    /* register */
-    document.getElementById("reg-btn")?.addEventListener("click", async () => {
-        try {
-            const r = await api("/auth/register", {
-                method:"POST", headers:{"Content-Type":"application/json"},
-                body: JSON.stringify({
-                    username: document.getElementById("reg_username").value,
-                    email:    document.getElementById("reg_email").value,
-                    password: document.getElementById("reg_password").value,
-                }),
+if (toggleCameraBtn) {
+    toggleCameraBtn.addEventListener("click", () => {
+        if (!html5QrcodeScanner) {
+            scannerDiv.style.display = "block";
+            toggleCameraBtn.querySelector("span").textContent = "Stop Camera Scan";
+            toggleCameraBtn.classList.add("btn-primary");
+            toggleCameraBtn.classList.remove("btn-ghost");
+            
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            html5QrcodeScanner.start(
+                { facingMode: "environment" }, 
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                    if (scanCodeInput) {
+                        scanCodeInput.value = decodedText;
+                        triggerPreview(decodedText);
+                    }
+                    stopScanner();
+                },
+                () => {} // silent error
+            ).catch(err => {
+                console.error("Camera access failed", err);
+                setStatus("Camera access failed: " + err);
+                stopScanner();
             });
-            setStatus(r.message || "OTP sent — check your email.");
-            document.getElementById("otp_email").value = document.getElementById("reg_email").value;
-            showStep("verify");
-        } catch(e) { setStatus(e.message, true); }
-    });
-
-    /* verify OTP */
-    document.getElementById("otp-btn")?.addEventListener("click", async () => {
-        try {
-            const r = await api("/auth/verify-otp", {
-                method:"POST", headers:{"Content-Type":"application/json"},
-                body: JSON.stringify({
-                    email:    document.getElementById("otp_email").value,
-                    otp_code: document.getElementById("otp_code").value,
-                }),
-            });
-            saveTok(r.access_token);
-        } catch(e) { setStatus(e.message, true); }
-    });
-
-    /* scan */
-    document.getElementById("scan-btn")?.addEventListener("click", async () => {
-        try {
-            const r = await api("/scans", {
-                method:"POST", headers:{"Content-Type":"application/json", ...authH()},
-                body: JSON.stringify({
-                    scan_code: document.getElementById("scan_code").value,
-                    quantity:  Number(document.getElementById("scan_qty").value || 1),
-                }),
-            });
-            setStatus(r.message || "Scan captured.");
-            loadScans();
-        } catch(e) { setStatus(e.message, true); }
+        } else {
+            stopScanner();
+        }
     });
 }
 
-/* ── Login (both portals) ── */
-document.getElementById("login-btn")?.addEventListener("click", async () => {
+if (scanCodeInput) {
+    let debounceTimer = null;
+    scanCodeInput.addEventListener("input", (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            triggerPreview(e.target.value);
+        }, 400);
+    });
+}
+
+/* ── Scan product action ── */
+document.getElementById("scan-btn")?.addEventListener("click", async () => {
     try {
-        const r = await api("/auth/token", {
-            method:"POST", headers:{"Content-Type":"application/json"},
+        const r = await api("/scans", {
+            method:"POST", headers:{"Content-Type":"application/json", ...authH()},
             body: JSON.stringify({
-                identifier: document.getElementById("login_identifier").value,
-                password:   document.getElementById("login_password").value,
+                scan_code: document.getElementById("scan_code").value,
+                quantity:  Number(document.getElementById("scan_qty").value || 1),
             }),
         });
-        saveTok(r.access_token);
+        setStatus(r.message || "Scan captured.");
+        
+        // Reset preview container and input
+        if (scanCodeInput) scanCodeInput.value = "";
+        if (previewContainer) {
+            previewContainer.style.display = "none";
+            previewContainer.innerHTML = "";
+        }
+        
+        loadScans();
     } catch(e) { setStatus(e.message, true); }
 });
 
@@ -575,7 +562,7 @@ document.getElementById("admin-create-btn")?.addEventListener("click", async () 
 });
 
 /* ── Logout ── */
-sbLogout?.addEventListener("click", () => { localStorage.removeItem(TK); refresh(); });
+sbLogout?.addEventListener("click", () => { localStorage.removeItem(TK); window.location.href = "/login"; });
 
 /* ── Render helpers ── */
 function setStatus(msg, isErr = false) {
@@ -635,54 +622,23 @@ async function loadScans() {
 /* ── Main session refresh ── */
 async function refresh() {
     const t = tok();
-    if (!t) {
-        sessionDot.className  = "session-dot off";
-        sessionText.textContent = "Not signed in";
-        sbUsername.textContent  = "Guest";
-        sbRole.textContent      = "Not signed in";
-        sbLogout.style.display  = "none";
+    if (!t) return; 
 
-        const profileEl = document.getElementById("profile");
-        if (profileEl) profileEl.textContent = "Sign in to view your account details.";
-        const inv = document.getElementById("inventory");
-        if (inv) inv.innerHTML = '<div class="info-box">Sign in as admin to view inventory.</div>';
-        const usr = document.getElementById("admin-users");
-        if (usr) usr.innerHTML = '<div class="info-box">Sign in to load user list.</div>';
-        const scn = document.getElementById("scan-history");
-        if (scn) scn.innerHTML = '<div class="info-box">Sign in to load scan history.</div>';
-
-        if (PAGE_ROLE === "user") {
-            const tabs = document.querySelectorAll(".step-tab");
-            const panels = document.querySelectorAll(".step-panel");
-            tabs.forEach(x => x.classList.toggle("active", x.dataset.step === "register"));
-            panels.forEach(x => x.classList.toggle("active", x.dataset.step === "register"));
-            const sc = document.getElementById("scan-card");
-            const hc = document.getElementById("history-card");
-            if (sc) sc.style.display = "none";
-            if (hc) hc.style.display = "none";
-        }
-        return;
-    }
     try {
         const me = await api("/auth/me", { headers: authH() });
+        
+        if (PAGE_ROLE === "admin" && me.role !== "admin") {
+            window.location.href = "/user";
+            return;
+        }
+
         sessionDot.className    = "session-dot";
         sessionText.textContent = `${me.username} · ${me.role}`;
         sbUsername.textContent  = me.username;
         sbRole.textContent      = me.role + (me.is_verified ? " · verified" : " · unverified");
         sbLogout.style.display  = "flex";
 
-        const profileEl = document.getElementById("profile");
-        if (profileEl) profileEl.textContent = JSON.stringify(me, null, 2);
-
         if (PAGE_ROLE === "user") {
-            const tabs = document.querySelectorAll(".step-tab");
-            const panels = document.querySelectorAll(".step-panel");
-            tabs.forEach(x => x.classList.toggle("active", x.dataset.step === "dashboard"));
-            panels.forEach(x => x.classList.toggle("active", x.dataset.step === "dashboard"));
-            const sc = document.getElementById("scan-card");
-            const hc = document.getElementById("history-card");
-            if (sc) sc.style.display = "block";
-            if (hc) hc.style.display = "block";
             await loadScans();
         } else if (me.role === "admin") {
             const [inv, users] = await Promise.all([
@@ -694,9 +650,8 @@ async function refresh() {
             await loadScans();
         }
     } catch(e) {
-        sessionDot.className    = "session-dot off";
-        sessionText.textContent = e.message;
-        sbRole.textContent      = "Error";
+        localStorage.removeItem(TK);
+        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
     }
 }
 

@@ -391,6 +391,12 @@ def render_landing_page() -> str:
     return _impl()
 
 
+def render_login_page() -> str:
+    from presentation import render_login_page as _impl
+    return _impl()
+
+
+
 def render_portal_page(page_role: str) -> str:
     from presentation import render_portal_page as _impl
     return _impl(page_role)
@@ -475,6 +481,12 @@ def landing_page():
     return HTMLResponse(render_landing_page())
 
 
+@app.get("/login", response_class=HTMLResponse)
+def login_page():
+    return HTMLResponse(render_login_page())
+
+
+
 @app.get("/user", response_class=HTMLResponse)
 def user_page():
     return HTMLResponse(render_portal_page("user"))
@@ -526,8 +538,15 @@ def register_user(
     db: Session = Depends(get_db),
 ):
     user, otp_code = create_pending_user(db, payload, send_email=False)
-    background_tasks.add_task(send_verification_email, user.email, otp_code)
-    return AuthMessage(message=f"Verification code sent to {user.email}")
+    if SMTP_HOST:
+        background_tasks.add_task(send_verification_email, user.email, otp_code)
+        return AuthMessage(message=f"Verification code sent to {user.email}")
+    else:
+        return AuthMessage(
+            message=f"Verification code created (SMTP not configured, running in sandbox/mock mode).",
+            mock_otp=otp_code,
+        )
+
 
 
 @app.post("/auth/token", response_model=Token)

@@ -1,8 +1,11 @@
 # StockPulse
 
 [![CI/CD](https://github.com/osman-builds/StockPulse/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/osman-builds/StockPulse/actions/workflows/ci-cd.yml)
+[![Live Demo Showcase](https://img.shields.io/badge/Demo-Live_Showcase-6366f1?style=for-the-badge)](https://osman-builds.github.io/StockPulse/)
 
-StockPulse is a FastAPI inventory and barcode-scanning app with role-based portals, PostgreSQL, Redis caching, Docker, and GitHub Actions for automated testing and image publishing. This is the main README for the whole repository.
+StockPulse is a FastAPI inventory and barcode-scanning app with role-based portals, PostgreSQL, Redis caching, Docker, and GitHub Actions for automated testing and image publishing. 
+
+An interactive frontend showcase with live camera barcode scanning is hosted on [GitHub Pages](https://osman-builds.github.io/StockPulse/).
 
 ## Customer Problem
 
@@ -18,10 +21,14 @@ This app was built to solve those problems in a way that is easy to run locally 
 
 ## Why These Pieces Exist
 
-- The camera barcode scanner exists because typing item codes by hand is slow and error-prone.
-- Redis caching exists because repeated inventory reads should be fast and should not keep hitting the database.
-- Nginx exists because traffic should be spread across multiple app replicas instead of depending on one container.
-- GitHub Actions exists because tests should run automatically before a new image is published.
+- **Premium Standalone `/login` Screen:** Decoupled authentication layout with radial gradients, responsive mobile transitions, and user-role routing.
+- **Sandbox OTP Mode:** Instantly shows validation OTP codes on the UI if SMTP configuration is absent, avoiding external dependency delays.
+- **Real-Time Camera Scan:** Captures barcodes directly using the device camera stream on user/supplier portals.
+- **Live Analysis Preview Card:** Fetches inventory metrics (safety stock, stock status, category) dynamically on entering or scanning codes.
+- **Automatic Sandbox Seeding:** Seeds mock accounts and products automatically on launch for instant out-of-the-box evaluations.
+- **Redis Cache:** Keeps repeated inventory reads fast and limits database lookups.
+- **Nginx Load Balancer:** Balance traffic across multiple app replicas to maintain high availability.
+- **GitHub Actions:** Validates builds and tests on pushes and pull requests.
 
 ## How The System Works
 
@@ -84,6 +91,7 @@ Then open the app at [http://localhost:8000](http://localhost:8000).
 
 - `StockPulse/` - main StockPulse app, Docker, tests, and GitHub Actions.
 
-## Next Step
+## Frontend Showcase & Interactive Live Demo
 
-If you want, the next useful upgrade is to add actual screenshots from the running UI and publish the repository under a GitHub slug that matches StockPulse.
+A static front-end demo with camera barcode scanning and simulated product analysis is hosted on GitHub Pages:
+👉 **[StockPulse Frontend Showcase](https://osman-builds.github.io/StockPulse/)**

@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Access StockPulse — Secure role-scoped authentication portal." />
+    <title>Sign In — StockPulse</title>
+    <link rel="icon" type="image/svg+xml" href="/static/stockpulse-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #09090b;
+            --s1: #18181b;
+            --s2: #27272a;
+            --s3: #3f3f46;
+            --bd: #27272a;
+            --bd-focus: #4f46e5;
+            --t1: #fafafa;
+            --t2: #a1a1aa;
+            --t3: #71717a;
+            --indigo: #6366f1;
+            --indigo-glow: rgba(99, 102, 241, 0.15);
+            --emerald: #10b981;
+            --emerald-bg: rgba(16, 185, 129, 0.1);
+            --rose: #f43f5e;
+            --rose-bg: rgba(244, 63, 94, 0.1);
+            --r-lg: 16px;
+            --r-md: 12px;
+            --r-sm: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html { font-size: 14px; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--t1);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Animated Background Glows ── */
+        .bg-glows {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .glow-1 {
+            position: absolute;
+            top: -10%; left: -10%;
+            width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, rgba(9,9,11,0) 70%);
+            border-radius: 50%;
+        }
+        .glow-2 {
+            position: absolute;
+            bottom: -10%; right: -10%;
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, rgba(9,9,11,0) 70%);
+            border-radius: 50%;
+        }
+
+        /* ── Container ── */
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+            z-index: 2;
+            animation: containerAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes containerAppear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Header ── */
+        .brand-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            padding: 8px;
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--r-md);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+        .brand-logo:hover {
+            transform: scale(1.05) rotate(5deg);
+            border-color: var(--indigo);
+        }
+        .brand-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -.03em;
+            background: linear-gradient(135deg, #fff 30%, var(--t2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-subtitle {
+            font-size: 13.5px;
+            color: var(--t2);
+            font-weight: 400;
+            max-width: 320px;
+        }
+
+        /* ── Card ── */
+        .auth-card {
+            background: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--bd);
+            border-radius: var(--r-lg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            padding: 32px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── Navigation / Tabs ── */
+        .auth-tabs {
+            display: flex;
+            background: #0f0f11;
+            border: 1px solid var(--bd);
+            border-radius: var(--r-sm);
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 28px;
+            position: relative;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 10px 4px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--t3);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+        .auth-tab:hover {
+            color: var(--t1);
+        }
+        .auth-tab.active {
+            background: var(--s1);
+            color: var(--t1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* ── Panels ── */
+        .auth-panel {
+            display: none;
+            animation: panelFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .auth-panel.active {
+            display: block;
+        }
+
+        @keyframes panelFade {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Forms ── */
+        .fg {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .fl {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--t2);
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+        .fi-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .fi-icon {
+            position: absolute;
+            left: 14px;
+            width: 18px;
+            height: 18px;
+            color: var(--t3);
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        .fi {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            background: #0f0f11;
+            border: 1px solid var(--s3);
+            border-radius: var(--r-sm);
+            color: var(--t1);
+            font-size: 14px;
+            font-family: inherit;
+            transition: var(--transition);
+            outline: none;
+        }
+        .fi:focus {
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px var(--indigo-glow);
+            background: #09090b;
+        }
+        .fi:focus + .fi-icon {
+            color: var(--indigo);
+        }
+        .fi::placeholder {
+            color: var(--t3);
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: var(--r-sm);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--indigo) 0%, #4f46e5 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+        .btn-primary:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-full {
+            width: 100%;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: var(--t2);
+            border: 1px solid var(--s3);
+            margin-top: 12px;
+        }
+        .btn-ghost:hover {
+            background: var(--s2);
+            color: var(--t1);
+            border-color: var(--t3);
+        }
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+        }
+        .btn:hover svg {
+            transform: translateX(2px);
+        }
+
+        /* ── Sandbox/Mock OTP Info Box ── */
+        .sandbox-box {
+            background: var(--emerald-bg);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: var(--r-sm);
+            padding: 16px;
+            margin-bottom: 24px;
+            animation: sandboxAlert 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes sandboxAlert {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .sb-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--emerald);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .sb-title svg {
+            width: 16px;
+            height: 16px;
+        }
+        .sb-desc {
+            font-size: 12.5px;
+            color: var(--t2);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .sb-code-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 6px;
+            padding: 10px 14px;
+        }
+        .sb-code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--emerald);
+            letter-spacing: 0.1em;
+        }
+        .sb-btn {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .sb-btn:hover {
+            background: rgba(16, 185, 129, 0.3);
+        }
+
+        /* ── Status Toast ── */
+        .status-toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: var(--r-sm);
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 20px;
+            display: none;
+            animation: panelFade 0.25s forwards;
+        }
+        .status-toast.error {
+            display: flex;
+            background: var(--rose-bg);
+            border: 1px solid rgba(244, 63, 94, 0.25);
+            color: #ffa4b4;
+        }
+        .status-toast.success {
+            display: flex;
+            background: var(--emerald-bg);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #a7f3d0;
+        }
+        .status-toast svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ── Back to Login link ── */
+        .back-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 16px;
+            color: var(--t3);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .back-link:hover {
+            color: var(--t1);
+        }
+        .back-link svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ── Spinner ── */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+            .auth-card {
+                padding: 24px 20px;
+            }
+            .brand-header {
+                margin-bottom: 24px;
+            }
+            .brand-title {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-glows">
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+</div>
+
+<div class="login-container">
+    <header class="brand-header">
+        <img class="brand-logo" src="/static/stockpulse-icon.svg" alt="StockPulse" />
+        <h1 class="brand-title">StockPulse</h1>
+        <p class="brand-subtitle" id="portal-sub">Sign in to manage your inventory, batch history, and replenishments.</p>
+    </header>
+
+    <main class="auth-card">
+        <!-- Status Notification Toast -->
+        <div class="status-toast" id="status-toast">
+            <svg id="toast-icon-err" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="display:none">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+            </svg>
+            <svg id="toast-icon-ok" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="display:none">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+            </svg>
+            <span id="toast-message"></span>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="auth-tabs" id="auth-tabs-nav">
+            <button class="auth-tab active" id="tab-login" onclick="switchView('login')">Sign In</button>
+            <button class="auth-tab" id="tab-register" onclick="switchView('register')">Create Account</button>
+        </div>
+
+        <!-- PANEL: Login -->
+        <div class="auth-panel active" id="panel-login">
+            <form onsubmit="handleLogin(event)">
+                <div class="fg">
+                    <label class="fl" for="login_identifier">Username or Email</label>
+                    <div class="fi-wrap">
+                        <input class="fi" id="login_identifier" type="text" autocomplete="username" placeholder="e.g. john_doe" required />
+                        <svg class="fi-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label class="fl" for="login_password">Password</label>
+                    <div class="fi-wrap">
+                        <input class="fi" id="login_password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+                        <svg class="fi-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" id="btn-login-submit">
+                    <span class="spinner" id="spin-login"></span>
+                    <span id="text-login">Sign In</span>
+                    <svg id="arrow-login" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- PANEL: Register -->
+        <div class="auth-panel" id="panel-register">
+            <form onsubmit="handleRegister(event)">
+                <div class="fg">
+                    <label class="fl" for="reg_username">Username</label>
+                    <div class="fi-wrap">
+                        <input class="fi" id="reg_username" type="text" autocomplete="username" placeholder="john_doe" required />
+                        <svg class="fi-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label class="fl" for="reg_email">Email Address</label>
+                    <div class="fi-wrap">
+                        <input class="fi" id="reg_email" type="email" autocomplete="email" placeholder="you@example.com" required />
+                        <svg class="fi-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label class="fl" for="reg_password">Password (min 8 chars)</label>
+                    <div class="fi-wrap">
+                        <input class="fi" id="reg_password" type="password" minlength="8" autocomplete="new-password" placeholder="••••••••" required />
+                        <svg class="fi-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" id="btn-reg-submit">
+                    <span class="spinner" id="spin-reg"></span>
+                    <span id="text-reg">Create Account &amp; Send OTP</span>
+                    <svg id="arrow-reg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- PANEL: Verify OTP -->
+        <div class="auth-panel" id="panel-verify">
+            <!-- Sandbox Banner (inserted dynamically) -->
+            <div id="sandbox-container"></div>
+
+            <form onsubmit="handleVerify(event)">
+                <div class="fg">
+                    <label class="fl" for="otp_email">Verify Email Address</label>
+                    <div class="fi-wrap">
+                        <input class="fi" id="otp_email" type="email" autocomplete="email" required />
+                        <svg class="fi-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label class="fl" for="otp_code">6-Digit Verification Code</label>
+                    <div class="fi-wrap">
+                        <input class="fi" id="otp_code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" required />
+                        <svg class="fi-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                        </svg>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" id="btn-verify-submit">
+                    <span class="spinner" id="spin-verify"></span>
+                    <span id="text-verify">Confirm &amp; Log In</span>
+                    <svg id="arrow-verify" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                </button>
+            </form>
+
+            <a href="javascript:void(0)" class="back-link" onclick="switchView('login')">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+                Back to Sign In
+            </a>
+        </div>
+
+        <!-- Demo Accounts Hint -->
+        <div style="margin-top: 24px; border-top: 1px solid var(--bd); padding-top: 16px; font-size: 12px; color: var(--t3); text-align: left; animation: panelFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+            <strong style="color: var(--t2); display: block; margin-bottom: 8px; font-weight: 600;">Sandbox Demo Accounts:</strong>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 8px;">
+                    <span style="color: var(--t1); font-weight: 600; font-size: 11px;">Admin Portal</span><br/>
+                    User: <code style="color: var(--indigo); font-weight:600;">admin</code><br/>
+                    Pass: <code style="color: var(--t2);">admin12345</code>
+                </div>
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 8px;">
+                    <span style="color: var(--t1); font-weight: 600; font-size: 11px;">Supplier Portal</span><br/>
+                    User: <code style="color: var(--indigo); font-weight:600;">acme_supplier</code><br/>
+                    Pass: <code style="color: var(--t2);">supplier12345</code>
+                </div>
+                <div style="grid-column: span 2; background: rgba(255,255,255,0.02); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 8px;">
+                    <span style="color: var(--t1); font-weight: 600; font-size: 11px;">Standard User Portal</span><br/>
+                    User: <code style="color: var(--indigo); font-weight:600;">demouser</code> &nbsp;·&nbsp; Pass: <code style="color: var(--t2);">user12345</code>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const TK = "stockpulse_token";
+
+    // Set initial redirect from query string if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const nextUrl = urlParams.get('next') || '';
+
+    // Switch between Sign In, Register, and Verify OTP
+    function switchView(view) {
+        // Reset toast
+        showToast("", "");
+
+        // Hide all panels
+        document.getElementById('panel-login').classList.remove('active');
+        document.getElementById('panel-register').classList.remove('active');
+        document.getElementById('panel-verify').classList.remove('active');
+
+        // Reset tab buttons active classes
+        document.getElementById('tab-login').classList.remove('active');
+        document.getElementById('tab-register').classList.remove('active');
+
+        // Show navigation tabs by default, hide during verify code step
+        document.getElementById('auth-tabs-nav').style.display = 'flex';
+
+        if (view === 'login') {
+            document.getElementById('panel-login').classList.add('active');
+            document.getElementById('tab-login').classList.add('active');
+            document.getElementById('portal-sub').innerText = "Sign in to manage your inventory, batch history, and replenishments.";
+        } else if (view === 'register') {
+            document.getElementById('panel-register').classList.add('active');
+            document.getElementById('tab-register').classList.add('active');
+            document.getElementById('portal-sub').innerText = "Register a new user account below to start scanning stock.";
+        } else if (view === 'verify') {
+            document.getElementById('panel-verify').classList.add('active');
+            document.getElementById('auth-tabs-nav').style.display = 'none';
+            document.getElementById('portal-sub').innerText = "Confirm your identity by entering the verification code.";
+        }
+    }
+
+    // Helper: Show custom toast message
+    function showToast(msg, type) {
+        const toast = document.getElementById('status-toast');
+        const text = document.getElementById('toast-message');
+        const iconErr = document.getElementById('toast-icon-err');
+        const iconOk = document.getElementById('toast-icon-ok');
+
+        if (!msg) {
+            toast.style.display = 'none';
+            return;
+        }
+
+        toast.className = 'status-toast ' + type;
+        text.innerText = msg;
+
+        if (type === 'error') {
+            iconErr.style.display = 'block';
+            iconOk.style.display = 'none';
+        } else {
+            iconErr.style.display = 'none';
+            iconOk.style.display = 'block';
+        }
+        toast.style.display = 'flex';
+    }
+
+    // Helper: Toggle loading state
+    function toggleLoading(btnId, spinId, textId, arrowId, isLoading) {
+        const btn = document.getElementById(btnId);
+        const spinner = document.getElementById(spinId);
+        const text = document.getElementById(textId);
+        const arrow = document.getElementById(arrowId);
+
+        if (isLoading) {
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            text.style.opacity = '0.5';
+            if (arrow) arrow.style.display = 'none';
+        } else {
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            text.style.opacity = '1';
+            if (arrow) arrow.style.display = 'block';
+        }
+    }
+
+    // Direct fetch wrapper
+    async function api(url, opts = {}) {
+        const r = await fetch(url, opts);
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.detail || "Request failed");
+        return d;
+    }
+
+    // Login Action
+    async function handleLogin(e) {
+        e.preventDefault();
+        showToast("", "");
+        toggleLoading('btn-login-submit', 'spin-login', 'text-login', 'arrow-login', true);
+
+        const identifier = document.getElementById('login_identifier').value;
+        const password = document.getElementById('login_password').value;
+
+        try {
+            const data = await api("/auth/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ identifier, password })
+            });
+
+            localStorage.setItem(TK, data.access_token);
+            showToast("Successfully signed in! Redirecting...", "success");
+            setTimeout(redirectUser, 800);
+        } catch (err) {
+            showToast(err.message, "error");
+            toggleLoading('btn-login-submit', 'spin-login', 'text-login', 'arrow-login', false);
+        }
+    }
+
+    // Register Action
+    async function handleRegister(e) {
+        e.preventDefault();
+        showToast("", "");
+        toggleLoading('btn-reg-submit', 'spin-reg', 'text-reg', 'arrow-reg', true);
+
+        const username = document.getElementById('reg_username').value;
+        const email = document.getElementById('reg_email').value;
+        const password = document.getElementById('reg_password').value;
+
+        try {
+            const data = await api("/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            // Set verification email address automatically
+            document.getElementById('otp_email').value = email;
+
+            // Check if mock/sandbox OTP is returned
+            const sandboxContainer = document.getElementById('sandbox-container');
+            sandboxContainer.innerHTML = ''; // Reset
+
+            if (data.mock_otp) {
+                sandboxContainer.innerHTML = `
+                    <div class="sandbox-box">
+                        <div class="sb-title">
+                            <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" />
+                            </svg>
+                            Sandbox Code
+                        </div>
+                        <div class="sb-desc">SMTP is disabled. We intercepted your account verification OTP:</div>
+                        <div class="sb-code-wrap">
+                            <span class="sb-code">${data.mock_otp}</span>
+                            <button class="sb-btn" onclick="autofillOtp('${data.mock_otp}')">Autofill &amp; Confirm</button>
+                        </div>
+                    </div>
+                `;
+                showToast("Account created in Sandbox Mode.", "success");
+            } else {
+                showToast(data.message || "Account created! Please check your email for the verification code.", "success");
+            }
+
+            // Slide to verification view
+            setTimeout(() => {
+                switchView('verify');
+                toggleLoading('btn-reg-submit', 'spin-reg', 'text-reg', 'arrow-reg', false);
+            }, 500);
+
+        } catch (err) {
+            showToast(err.message, "error");
+            toggleLoading('btn-reg-submit', 'spin-reg', 'text-reg', 'arrow-reg', false);
+        }
+    }
+
+    // Verify Action
+    async function handleVerify(e) {
+        if (e) e.preventDefault();
+        showToast("", "");
+        toggleLoading('btn-verify-submit', 'spin-verify', 'text-verify', 'arrow-verify', true);
+
+        const email = document.getElementById('otp_email').value;
+        const otp_code = document.getElementById('otp_code').value;
+
+        try {
+            const data = await api("/auth/verify-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, otp_code })
+            });
+
+            localStorage.setItem(TK, data.access_token);
+            showToast("OTP Verified! Redirecting to your dashboard...", "success");
+            setTimeout(redirectUser, 800);
+        } catch (err) {
+            showToast(err.message, "error");
+            toggleLoading('btn-verify-submit', 'spin-verify', 'text-verify', 'arrow-verify', false);
+        }
+    }
+
+    // Autofill Sandbox helper
+    window.autofillOtp = function(code) {
+        document.getElementById('otp_code').value = code;
+        handleVerify(null);
+    }
+
+    // Query /auth/me and redirect appropriately
+    async function redirectUser() {
+        if (nextUrl) {
+            window.location.href = nextUrl;
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem(TK);
+            if (!token) {
+                switchView('login');
+                return;
+            }
+
+            const me = await api("/auth/me", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (me.role === 'admin') {
+                window.location.href = '/admin';
+            } else if (me.role === 'supplier') {
+                window.location.href = '/supplier';
+            } else {
+                window.location.href = '/user';
+            }
+        } catch (err) {
+            localStorage.removeItem(TK);
+            switchView('login');
+        }
+    }
+
+    // Check if user is already signed in, if so, redirect them away from login
+    (async function init() {
+        const token = localStorage.getItem(TK);
+        if (token) {
+            try {
+                // Validate token quickly
+                await api("/auth/me", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                redirectUser();
+                return;
+            } catch (e) {
+                localStorage.removeItem(TK);
+            }
+        }
+        // Check if verify was requested directly via hash or query param
+        if (urlParams.get('verify') === 'true') {
+            document.getElementById('otp_email').value = urlParams.get('email') || '';
+            switchView('verify');
+        } else {
+            switchView('login');
+        }
+    })();
+</script>
+</body>
+</html>

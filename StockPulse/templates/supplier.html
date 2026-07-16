@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -175,24 +176,6 @@
     <div class="content">
         <div class="grid">
 
-            <!-- Login -->
-            <div class="card">
-                <div class="card-head">
-                    <div class="card-title">
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
-                        Sign in
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="fg"><label class="fl">Email or username</label><input class="fi" id="login_identifier" autocomplete="username" required></div>
-                    <div class="fg"><label class="fl">Password</label><input class="fi" id="login_password" type="password" autocomplete="current-password" required></div>
-                    <button class="btn btn-primary btn-full" id="login-btn">
-                        Sign in
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
-                    </button>
-                </div>
-            </div>
-
             <!-- Profile -->
             <div class="card">
                 <div class="card-head">
@@ -202,7 +185,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="info-box code" id="profile">Sign in to view your account details.</div>
+                    <div class="info-box code" id="profile">Loading details...</div>
                 </div>
             </div>
 
@@ -215,7 +198,21 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="fg">
+                        <label class="fl">Camera Scanner</label>
+                        <div id="interactive-scanner" style="display:none; border:1px solid var(--bd); border-radius:var(--r); overflow:hidden; margin-bottom:14px; background:#000;">
+                            <div id="reader" style="width: 100%;"></div>
+                        </div>
+                        <button type="button" class="btn btn-ghost btn-full" id="toggle-camera-btn" style="margin-bottom:14px;">
+                            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>
+                            <span>Start Camera Scan</span>
+                        </button>
+                    </div>
                     <div class="fg"><label class="fl">Scan code or SKU</label><input class="fi" id="scan_code" placeholder="Type or scan a code" required></div>
+                    <div id="preview-container" style="display:none; margin-bottom:14px;"></div>
+                    <p style="font-size:11px; color:var(--t3); margin-bottom:14px; margin-top:-8px;">
+                        Try scanning/typing demo SKUs: <code style="color:var(--ind2);">EAR-WIRELESS-01</code> or <code style="color:var(--ind2);">BOTTLE-STEEL-04</code>.
+                    </p>
                     <div class="fg"><label class="fl">Quantity</label><input class="fi" id="scan_qty" type="number" min="1" value="1" required></div>
                     <button class="btn btn-primary btn-full" id="scan-btn">Capture scan</button>
                 </div>
@@ -230,7 +227,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div id="movement"><div class="info-box">Sign in as a supplier to view product movement.</div></div>
+                    <div id="movement"><div class="info-box">Loading movement...</div></div>
                 </div>
             </div>
 
@@ -243,7 +240,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div id="scans"><div class="info-box">Sign in to view your scan history.</div></div>
+                    <div id="scans"><div class="info-box">Loading scans...</div></div>
                 </div>
             </div>
         </div>
@@ -261,6 +258,11 @@ async function api(url, opts = {}) {
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.detail || "Request failed");
     return d;
+}
+
+// Global redirect if not authenticated
+if (!tok()) {
+    window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
 }
 
 const sdot    = document.getElementById("sdot");
@@ -306,16 +308,110 @@ function renderScans(items) {
         </div>`).join('');
 }
 
-document.getElementById("login-btn").addEventListener("click", async () => {
+/* ── Product preview and Camera scanner ── */
+let html5QrcodeScanner = null;
+const toggleCameraBtn = document.getElementById("toggle-camera-btn");
+const scannerDiv = document.getElementById("interactive-scanner");
+const previewContainer = document.getElementById("preview-container");
+const scanCodeInput = document.getElementById("scan_code");
+
+async function triggerPreview(code) {
+    if (!previewContainer) return;
+    if (!code.trim()) {
+        previewContainer.style.display = "none";
+        previewContainer.innerHTML = "";
+        return;
+    }
     try {
-        const r = await api("/auth/token", {
-            method:"POST", headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({ identifier: document.getElementById("login_identifier").value, password: document.getElementById("login_password").value }),
+        const r = await api(`/scans/preview?scan_code=${encodeURIComponent(code)}`, {
+            headers: authH()
         });
-        localStorage.setItem(TK, r.access_token);
-        refresh();
-    } catch(e) { setStatus(e.message); }
-});
+        
+        previewContainer.style.display = "block";
+        previewContainer.innerHTML = `
+            <div style="background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.25); border-radius: var(--r); padding: 12px; margin-top: 14px; animation: panelFade 0.2s forwards;">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--ind2); margin-bottom: 8px; letter-spacing: 0.04em;">Product Resolved</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--t1);">${esc(r.name)}</div>
+                        <div style="font-size: 11.5px; font-family: monospace; color: var(--ind2); font-weight: 600; margin-top: 2px;">SKU: ${esc(r.sku)}</div>
+                    </div>
+                    <span class="badge badge-${esc(r.inventory_status_snapshot)}">${esc(r.inventory_status_snapshot).replaceAll('_',' ')}</span>
+                </div>
+                <div style="display: flex; gap: 16px; font-size: 12.5px; border-top: 1px solid var(--bd); padding-top: 8px;">
+                    <div><span style="color: var(--t3)">Stock:</span> <strong style="color: var(--t1)">${esc(r.quantity_remaining_snapshot)}</strong></div>
+                    <div><span style="color: var(--t3)">Safety:</span> <strong style="color: var(--t1)">${esc(r.safety_stock)}</strong></div>
+                    <div><span style="color: var(--t3)">Category:</span> <strong style="color: var(--t1)">${esc(r.category || 'None')}</strong></div>
+                </div>
+            </div>
+        `;
+    } catch (e) {
+        previewContainer.style.display = "block";
+        previewContainer.innerHTML = `
+            <div style="background: var(--rmuted); border: 1px solid rgba(239,68,68,0.25); border-radius: var(--r); padding: 10px 12px; margin-top: 14px; color: #fca5a5; font-size: 12.5px; animation: panelFade 0.2s forwards;">
+                ⚠️ ${esc(e.message)}
+            </div>
+        `;
+    }
+}
+
+function stopScanner() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+            html5QrcodeScanner = null;
+            if (scannerDiv) scannerDiv.style.display = "none";
+            if (toggleCameraBtn) {
+                toggleCameraBtn.querySelector("span").textContent = "Start Camera Scan";
+                toggleCameraBtn.classList.remove("btn-primary");
+                toggleCameraBtn.classList.add("btn-ghost");
+            }
+        }).catch(err => console.error(err));
+    }
+}
+
+if (toggleCameraBtn) {
+    toggleCameraBtn.addEventListener("click", () => {
+        if (!html5QrcodeScanner) {
+            scannerDiv.style.display = "block";
+            toggleCameraBtn.querySelector("span").textContent = "Stop Camera Scan";
+            toggleCameraBtn.classList.add("btn-primary");
+            toggleCameraBtn.classList.remove("btn-ghost");
+            
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            html5QrcodeScanner.start(
+                { facingMode: "environment" }, 
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                    if (scanCodeInput) {
+                        scanCodeInput.value = decodedText;
+                        triggerPreview(decodedText);
+                    }
+                    stopScanner();
+                },
+                () => {} // silent error
+            ).catch(err => {
+                console.error("Camera access failed", err);
+                setStatus("Camera access failed: " + err);
+                stopScanner();
+            });
+        } else {
+            stopScanner();
+        }
+    });
+}
+
+if (scanCodeInput) {
+    let debounceTimer = null;
+    scanCodeInput.addEventListener("input", (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            triggerPreview(e.target.value);
+        }, 400);
+    });
+}
 
 document.getElementById("scan-btn").addEventListener("click", async () => {
     try {
@@ -324,24 +420,24 @@ document.getElementById("scan-btn").addEventListener("click", async () => {
             body: JSON.stringify({ scan_code: document.getElementById("scan_code").value, quantity: Number(document.getElementById("scan_qty").value || 1) }),
         });
         setStatus(r.message || "Scan captured.");
+        
+        // Reset preview container and input
+        if (scanCodeInput) scanCodeInput.value = "";
+        if (previewContainer) {
+            previewContainer.style.display = "none";
+            previewContainer.innerHTML = "";
+        }
+        
         refresh();
     } catch(e) { setStatus(e.message); }
 });
 
-logoutBtn.addEventListener("click", () => { localStorage.removeItem(TK); refresh(); });
+logoutBtn.addEventListener("click", () => { localStorage.removeItem(TK); window.location.href = "/login"; });
 
 async function refresh() {
     const t = tok();
-    if (!t) {
-        sdot.className = "sdot sdot-off";
-        setStatus("Not signed in");
-        sbName.textContent = "Guest"; sbSub.textContent = "Not signed in";
-        logoutBtn.style.display = "none";
-        document.getElementById("profile").textContent = "Sign in to view your account details.";
-        document.getElementById("movement").innerHTML = '<div class="info-box">Sign in as a supplier to view product movement.</div>';
-        document.getElementById("scans").innerHTML = '<div class="info-box">Sign in to view your scan history.</div>';
-        return;
-    }
+    if (!t) return; // Will redirect
+
     try {
         const me = await api("/auth/me", { headers: authH() });
         sdot.className = "sdot sdot-on";
@@ -362,8 +458,8 @@ async function refresh() {
             document.getElementById("movement").innerHTML = '<div class="info-box">Supplier role required to view movement data.</div>';
         }
     } catch(e) {
-        sdot.className = "sdot sdot-off";
-        setStatus(e.message);
+        localStorage.removeItem(TK);
+        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
     }
 }
 

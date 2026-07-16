@@ -53,6 +53,8 @@ class OtpVerifyRequest(BaseModel):
 
 class AuthMessage(BaseModel):
     message: str
+    mock_otp: Optional[str] = None
+
 
 
 class AdminUserCreate(BaseModel):

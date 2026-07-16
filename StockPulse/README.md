@@ -12,11 +12,14 @@ The original prototype was a single app process with direct reads from the datab
 
 ## What We Implemented And Why
 
-- A modern role-based UI because users need a clear path into the right portal without hunting through menus.
-- Camera barcode capture because typing item codes by hand is slow and error-prone in warehouse and retail workflows.
-- Redis caching because repeated inventory and preview reads should not hit the database every time.
-- An Nginx load balancer because traffic should be spread across two app replicas instead of depending on one container.
-- GitHub Actions because the same build and test flow should run automatically before the Docker image is published.
+- **Premium Standalone `/login` Screen:** Separated the login/register flows into a highly polished, dark-themed responsive authentication interface with dynamic sliding views and role-based redirects.
+- **Sandbox OTP Mode:** Intercepts and displays generated verification codes directly on the UI if SMTP settings are not configured, permitting immediate validation without external email delivery.
+- **Real-Time Camera Barcode Scan:** Integrated camera capture using the browser camera stream (via `html5-qrcode` CDN) on both `/user` and `/supplier` dashboards to instantly scan barcodes or SKUs.
+- **Live Analysis Preview Card:** Triggers an automatic backend query (`GET /scans/preview`) on typing or scanning a code, dynamically displaying resolved item name, SKU, safety stock, and real-time inventory status.
+- **Automatic Sandbox Seeding:** Pre-populates the database on startup with mock accounts (`admin`, `acme_supplier`, `demouser`) and product items (`Premium Wireless Earbuds`, `Ergonomic Office Chair`, `Organic Green Tea Pack`, `Stainless Steel Water Bottle`) to enable immediate sandbox testing.
+- **Redis Caching:** Accelerates repeated inventory and preview reads without hitting the database on every lookup.
+- **Nginx Load Balancer:** Distributes request traffic across multiple app replicas to prevent single points of failure.
+- **GitHub Actions CI/CD:** Runs tests and builds the official Docker image automatically on every push or pull request.
 
 ## Visual Tour
 

@@ -14,7 +14,7 @@ from starlette.requests import Request as StarletteRequest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from app import authenticate_user, create_access_token, create_admin_user, create_pending_user, create_session, get_current_user, hash_password, login_for_access_token, normalize_email_address, record_product_scan, render_dashboard, render_landing_page, render_portal_page, render_supplier_dashboard, verify_password, verify_user_otp
+from app import authenticate_user, create_access_token, create_admin_user, create_pending_user, create_session, get_current_user, hash_password, login_for_access_token, normalize_email_address, record_product_scan, render_dashboard, render_landing_page, render_login_page, render_portal_page, render_supplier_dashboard, verify_password, verify_user_otp
 from db import Base
 from models import Batch, Product, ProductScan, Supplier, User
 from schemas import AdminUserCreate, ScanCreate, UserCreate, UserLogin
@@ -103,22 +103,22 @@ class TestJwtAuth(unittest.TestCase):
         self.assertIn("/user", landing_html)
         self.assertIn("/admin", landing_html)
         self.assertIn("/supplier", landing_html)
-        self.assertIn("Getting started", user_html)
-        self.assertIn("Only the current step is shown", user_html)
-        self.assertIn("I already have an account", user_html)
-        self.assertIn('data-step="register"', user_html)
-        self.assertIn('data-step="verify"', user_html)
-        self.assertIn('data-step="login"', user_html)
-        self.assertIn('data-step="dashboard"', user_html)
-        self.assertIn("Register", user_html)
-        self.assertNotIn("Register", admin_html)
-        self.assertIn("Verify OTP", user_html)
-        self.assertIn("Admin Page", admin_html)
-        self.assertIn("/auth/verify-otp", admin_html)
-        self.assertIn("Supplier Dashboard", supplier_html)
-        self.assertIn("Provision account", admin_html)
+        login_html = render_login_page()
+        self.assertIn("Sign In", login_html)
+        self.assertIn("Create Account", login_html)
+        self.assertIn("Sandbox Demo Accounts", login_html)
+
+        self.assertIn("User Page", user_html)
         self.assertIn("Scan product", user_html)
         self.assertIn("Recent scans", user_html)
+
+        self.assertIn("Admin Page", admin_html)
+        self.assertIn("Provision account", admin_html)
+        self.assertIn("/auth/verify-otp", admin_html)
+
+        self.assertIn("Supplier Dashboard", supplier_html)
+        self.assertIn("Capture scan", supplier_html)
+        self.assertIn("Product movement", supplier_html)
 
     def test_admin_account_creation(self):
         admin = User(username="root", email="root@example.com", hashed_password=hash_password("secret123"), role="admin", is_active=1, is_verified=1)

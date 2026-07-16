@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="StockPulse — Frontend Showcase and Interactive Live Demo." />
+    <title>StockPulse — Frontend Showcase</title>
+    <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/osman-builds/StockPulse/main/StockPulse/static/stockpulse-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:  #09090b; --s1: #18181b; --s2: #27272a; --s3: #3f3f46;
+            --bd:  #27272a; --bd2: #3f3f46;
+            --t1:  #fafafa; --t2: #a1a1aa; --t3: #71717a;
+            --ind: #6366f1; --ind2: #818cf8; --im: rgba(99,102,241,.1);
+            --grn: #22c55e; --gmuted: rgba(34,197,94,.1);
+            --amb: #f59e0b; --amuted: rgba(245,158,11,.1);
+            --red: #ef4444; --rmuted: rgba(239,68,68,.1);
+            --r:   8px; --rl: 12px;
+            --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--t1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Glow backgrounds */
+        .bg-glows {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .glow-1 {
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, rgba(0,0,0,0) 70%);
+            top: -100px; left: 20%;
+        }
+        .glow-2 {
+            position: absolute;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, rgba(0,0,0,0) 70%);
+            bottom: -150px; right: 15%;
+        }
+
+        header {
+            text-align: center;
+            max-width: 680px;
+            margin-bottom: 40px;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .logo {
+            width: 56px; height: 56px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--t2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 15px;
+            color: var(--t2);
+            line-height: 1.6;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 960px;
+            width: 100%;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .card {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--rl);
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--bd);
+        }
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--t1);
+        }
+        .card-title svg {
+            width: 16px; height: 16px;
+            color: var(--t3);
+        }
+        .card-body {
+            padding: 20px;
+            flex: 1;
+        }
+
+        /* Interactive Scanner Card Styles */
+        .fg { margin-bottom: 16px; }
+        .fl { display: block; font-size: 12.5px; font-weight: 600; color: var(--t2); margin-bottom: 8px; }
+        .fi {
+            width: 100%; padding: 10px 14px;
+            background: var(--bg); border: 1px solid var(--bd2); border-radius: var(--r);
+            color: var(--t1); font-size: 14px; font-family: inherit;
+            transition: var(--transition); outline: none;
+        }
+        .fi:focus { border-color: var(--ind); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+        .fi::placeholder { color: var(--t3); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 20px; border-radius: var(--r); font-size: 14px; font-weight: 600;
+            font-family: inherit; border: none; cursor: pointer;
+            transition: var(--transition); text-decoration: none;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-full { width: 100%; }
+        .btn-primary { background: var(--ind); color: #fff; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); }
+        .btn-primary:hover { background: #4f46e5; box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35); }
+        .btn-ghost { background: transparent; color: var(--t2); border: 1px solid var(--bd2); }
+        .btn-ghost:hover { background: var(--s2); color: var(--t1); }
+        .btn svg { width: 16px; height: 16px; }
+
+        /* Badge Styles */
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 9px; border-radius: 999px;
+            font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+        }
+        .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+        .badge-healthy { background: var(--gmuted); color: #86efac; border: 1px solid rgba(34,197,94,.2); }
+        .badge-healthy::before { background: var(--grn); }
+        .badge-low_stock { background: var(--amuted); color: #fcd34d; border: 1px solid rgba(245,158,11,.2); }
+        .badge-low_stock::before { background: var(--amb); }
+        .badge-out_of_stock { background: var(--rmuted); color: #fca5a5; border: 1px solid rgba(239,68,68,.2); }
+        .badge-out_of_stock::before { background: var(--red); }
+
+        .terminal-block {
+            background: #000;
+            border: 1px solid var(--bd);
+            border-radius: var(--r);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12.5px;
+            padding: 16px;
+            color: #34d399;
+            overflow-x: auto;
+            position: relative;
+        }
+        .terminal-block::before {
+            content: 'TERMINAL';
+            position: absolute;
+            top: 4px; right: 8px;
+            font-size: 9px;
+            color: var(--t3);
+            font-weight: 700;
+        }
+        .terminal-line { margin-bottom: 6px; }
+        .terminal-line:last-child { margin-bottom: 0; }
+        .comment { color: var(--t3); }
+
+        .feature-list {
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 13.5px;
+            color: var(--t2);
+            line-height: 1.5;
+        }
+        .feature-icon {
+            color: var(--ind2);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .feature-title {
+            font-weight: 600;
+            color: var(--t1);
+            margin-bottom: 2px;
+        }
+
+        .demo-pill {
+            display: inline-block;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--bd);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 11px;
+            font-family: monospace;
+            color: var(--ind2);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .demo-pill:hover {
+            background: var(--im);
+            border-color: var(--ind2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes panelFade {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @media(max-width: 768px) {
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+            body {
+                padding: 20px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-glows">
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+</div>
+
+<header>
+    <img class="logo" src="https://raw.githubusercontent.com/osman-builds/StockPulse/main/StockPulse/static/stockpulse-icon.svg" alt="StockPulse" />
+    <h1>StockPulse</h1>
+    <p class="subtitle">Frontend and deployment showcase. Test the camera barcode scanner and dynamic inventory status resolver directly in your browser using static client-side simulations.</p>
+</header>
+
+<div class="showcase-grid">
+
+    <!-- Interactive Simulator -->
+    <div class="card">
+        <div class="card-head">
+            <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>
+                Camera Scanner &amp; Preview
+            </div>
+            <span class="badge badge-healthy">Interactive</span>
+        </div>
+        <div class="card-body">
+            <div class="fg">
+                <label class="fl">Camera Scanner Input</label>
+                <div id="interactive-scanner" style="display:none; border:1px solid var(--bd); border-radius:var(--r); overflow:hidden; margin-bottom:14px; background:#000;">
+                    <div id="reader" style="width: 100%;"></div>
+                </div>
+                <button type="button" class="btn btn-ghost btn-full" id="toggle-camera-btn" style="margin-bottom:14px;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>
+                    <span>Start Demo Camera Scan</span>
+                </button>
+            </div>
+            
+            <div class="fg">
+                <label class="fl" for="scan_code">Barcode or SKU</label>
+                <input class="fi" id="scan_code" placeholder="Type or scan a code" />
+            </div>
+
+            <div id="preview-container" style="display:none; margin-bottom:16px;"></div>
+
+            <div style="font-size:12px; color:var(--t3); line-height:1.5; border-top: 1px solid var(--bd); padding-top:14px;">
+                <span style="display:block; margin-bottom:6px; color:var(--t2); font-weight:600;">Seeded Sandbox SKU Presets (Click to Load):</span>
+                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                    <span class="demo-pill" onclick="loadSku('EAR-WIRELESS-01')">EAR-WIRELESS-01</span>
+                    <span class="demo-pill" onclick="loadSku('TEA-GREEN-03')">TEA-GREEN-03</span>
+                    <span class="demo-pill" onclick="loadSku('BOTTLE-STEEL-04')">BOTTLE-STEEL-04</span>
+                    <span class="demo-pill" onclick="loadSku('CHAIR-ERGONOMIC-02')">CHAIR-ERGONOMIC-02</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Start Guide -->
+    <div class="card">
+        <div class="card-head">
+            <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" /></svg>
+                Local Deployment
+            </div>
+        </div>
+        <div class="card-body" style="display:flex; flex-direction:column; gap:16px;">
+            <p style="font-size:13.5px; color:var(--t2); line-height:1.5;">To run the complete production-ready application including database replicas, Redis caching, Nginx load balancers, and JWT portals, run locally via Docker Compose:</p>
+            
+            <div class="terminal-block">
+                <div class="terminal-line"><span class="comment"># Clone the repository</span></div>
+                <div class="terminal-line">git clone https://github.com/osman-builds/StockPulse.git</div>
+                <div class="terminal-line">cd StockPulse</div>
+                <div class="terminal-line"></div>
+                <div class="terminal-line"><span class="comment"># Build and launch multi-service stack</span></div>
+                <div class="terminal-line">docker compose up --build -d</div>
+            </div>
+
+            <p style="font-size:12.5px; color:var(--t3); line-height:1.5;">The services will spin up and start listening on port **8000** (handled by Nginx). The database automatically seeds with sandbox users and items for frictionless initial tests.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Architecture & Features Overview -->
+<div class="card" style="max-width:960px; width:100%; margin-bottom:40px; animation:fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+    <div class="card-head">
+        <div class="card-title">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            System Features Summary
+        </div>
+    </div>
+    <div class="card-body">
+        <ul class="feature-list">
+            <li class="feature-item">
+                <div class="feature-icon">✨</div>
+                <div>
+                    <div class="feature-title">Premium Standalone Authentication Screen</div>
+                    <div>A dedicated login, sign-up, and OTP portal styled with a high-end glowing glassmorphism aesthetic. Auto-redirects sessions depending on role metadata.</div>
+                </div>
+            </li>
+            <li class="feature-item">
+                <div class="feature-icon">🛡️</div>
+                <div>
+                    <div class="feature-title">Zero-Configuration Sandbox OTP</div>
+                    <div>If SMTP host details are omitted from the environment settings, the application runs in local Mock mode, displaying registration verification codes instantly on the screen with an Autofill action.</div>
+                </div>
+            </li>
+            <li class="feature-item">
+                <div class="feature-icon">📷</div>
+                <div>
+                    <div class="feature-title">Real-Time Camera Scan &amp; Live Preview</div>
+                    <div>Integrated device camera capturing allows users to point their lenses at real QR/barcodes to populate details, dynamically resolving inventory levels, safety thresholds, and safety alerts in real-time.</div>
+                </div>
+            </li>
+            <li class="feature-item">
+                <div class="feature-icon">🎛️</div>
+                <div>
+                    <div class="feature-title">Multi-Service Docker Deployment Architecture</div>
+                    <div>Routes traffic using Nginx to spread API requests across two independent backend replica containers backed by a persistent PostgreSQL database instance and high-performance Redis cache rings.</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Client-side simulation database
+    const mockDB = {
+        "EAR-WIRELESS-01": {
+            name: "Premium Wireless Earbuds",
+            sku: "EAR-WIRELESS-01",
+            category: "Electronics",
+            quantity_remaining_snapshot: 35,
+            safety_stock: 10,
+            inventory_status_snapshot: "healthy"
+        },
+        "TEA-GREEN-03": {
+            name: "Organic Green Tea Pack",
+            sku: "TEA-GREEN-03",
+            category: "Beverages",
+            quantity_remaining_snapshot: 12,
+            safety_stock: 20,
+            inventory_status_snapshot: "low_stock"
+        },
+        "BOTTLE-STEEL-04": {
+            name: "Stainless Steel Water Bottle",
+            sku: "BOTTLE-STEEL-04",
+            category: "Kitchenware",
+            quantity_remaining_snapshot: 3,
+            safety_stock: 15,
+            inventory_status_snapshot: "out_of_stock"
+        },
+        "CHAIR-ERGONOMIC-02": {
+            name: "Ergonomic Office Chair",
+            sku: "CHAIR-ERGONOMIC-02",
+            category: "Furniture",
+            quantity_remaining_snapshot: 8,
+            safety_stock: 5,
+            inventory_status_snapshot: "healthy"
+        }
+    };
+
+    const scanCodeInput = document.getElementById("scan_code");
+    const previewContainer = document.getElementById("preview-container");
+    const toggleCameraBtn = document.getElementById("toggle-camera-btn");
+    const scannerDiv = document.getElementById("interactive-scanner");
+
+    let html5QrcodeScanner = null;
+
+    function esc(v) {
+        return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+    }
+
+    function triggerPreview(code) {
+        if (!code.trim()) {
+            previewContainer.style.display = "none";
+            previewContainer.innerHTML = "";
+            return;
+        }
+
+        const resolved = mockDB[code.trim().toUpperCase()];
+        previewContainer.style.display = "block";
+
+        if (resolved) {
+            previewContainer.innerHTML = `
+                <div style="background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.25); border-radius: var(--r); padding: 12px; margin-top: 14px; animation: panelFade 0.2s forwards; text-align: left;">
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--ind2); margin-bottom: 8px; letter-spacing: 0.04em;">Product Resolved (Simulated)</div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--t1);">${esc(resolved.name)}</div>
+                            <div style="font-size: 11.5px; font-family: monospace; color: var(--ind2); font-weight: 600; margin-top: 2px;">SKU: ${esc(resolved.sku)}</div>
+                        </div>
+                        <span class="badge badge-${esc(resolved.inventory_status_snapshot)}">${esc(resolved.inventory_status_snapshot).replaceAll('_',' ')}</span>
+                    </div>
+                    <div style="display: flex; gap: 16px; font-size: 12.5px; border-top: 1px solid var(--bd); padding-top: 8px;">
+                        <div><span style="color: var(--t3)">Stock:</span> <strong style="color: var(--t1)">${esc(resolved.quantity_remaining_snapshot)}</strong></div>
+                        <div><span style="color: var(--t3)">Safety:</span> <strong style="color: var(--t1)">${esc(resolved.safety_stock)}</strong></div>
+                        <div><span style="color: var(--t3)">Category:</span> <strong style="color: var(--t1)">${esc(resolved.category)}</strong></div>
+                    </div>
+                </div>
+            `;
+        } else {
+            previewContainer.innerHTML = `
+                <div style="background: var(--rmuted); border: 1px solid rgba(239,68,68,0.25); border-radius: var(--r); padding: 10px 12px; margin-top: 14px; color: #fca5a5; font-size: 12.5px; animation: panelFade 0.2s forwards; text-align: left;">
+                    ⚠️ Product not found in simulated sandbox database. Try typing one of the preset SKUs.
+                </div>
+            `;
+        }
+    }
+
+    function loadSku(sku) {
+        scanCodeInput.value = sku;
+        triggerPreview(sku);
+    }
+
+    let debounceTimer = null;
+    scanCodeInput.addEventListener("input", (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            triggerPreview(e.target.value);
+        }, 300);
+    });
+
+    // Scanner logic
+    function stopScanner() {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.stop().then(() => {
+                html5QrcodeScanner = null;
+                scannerDiv.style.display = "none";
+                toggleCameraBtn.querySelector("span").textContent = "Start Demo Camera Scan";
+                toggleCameraBtn.classList.remove("btn-primary");
+                toggleCameraBtn.classList.add("btn-ghost");
+            }).catch(err => console.error(err));
+        }
+    }
+
+    toggleCameraBtn.addEventListener("click", () => {
+        if (!html5QrcodeScanner) {
+            scannerDiv.style.display = "block";
+            toggleCameraBtn.querySelector("span").textContent = "Stop Demo Camera Scan";
+            toggleCameraBtn.classList.add("btn-primary");
+            toggleCameraBtn.classList.remove("btn-ghost");
+            
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            html5QrcodeScanner.start(
+                { facingMode: "environment" }, 
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                    scanCodeInput.value = decodedText;
+                    triggerPreview(decodedText);
+                    stopScanner();
+                },
+                () => {} // silent error
+            ).catch(err => {
+                console.error("Camera access failed", err);
+                alert("Camera access failed: " + err);
+                stopScanner();
+            });
+        } else {
+            stopScanner();
+        }
+    });
+</script>
+</body>
+</html>

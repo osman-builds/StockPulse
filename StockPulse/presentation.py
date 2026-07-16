@@ -32,6 +32,10 @@ def render_landing_page() -> str:
     return _render("landing.html")
 
 
+def render_login_page() -> str:
+    return _render("login.html")
+
+
 def render_portal_page(page_role: str) -> str:
     page_title = "Admin Page - StockPulse" if page_role == "admin" else "User Page - StockPulse"
     page_subtitle = (
